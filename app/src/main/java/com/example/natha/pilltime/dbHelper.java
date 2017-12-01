@@ -21,17 +21,18 @@ public class dbHelper extends SQLiteOpenHelper {
     private static final String keyName = "name";
     private static final String keyActive = "active";
     private static final String keyPill_Count = "pill_count";
-    private static final String keyDosage = "doseage";
+    private static final String keyDosage = "dosage";
     private static final String keyNotes = "notes";
 
     //table two value
     private static final String keyIdR = "_idr"; //primary key for table 2
     private static final String keyRemindTime = "remind_time";
+    private static final String keyTaken = "taken";
 
 
 
-    public dbHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
+    public dbHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -48,7 +49,8 @@ public class dbHelper extends SQLiteOpenHelper {
         String createReminderTable = "CREATE TABLE " + reminderTableName + " ("
                 + keyIdR + " INTERGER PRIMARY KEY, "
                 + medicineTableName + "_" + keyId + " INTEGER, "
-                + keyRemindTime + " TEXT, ";
+                + keyRemindTime + " TEXT, "
+                + keyTaken + " TEXT)";
         db.execSQL(createMedicineTable);
         db.execSQL(createReminderTable);
 
@@ -81,15 +83,17 @@ public class dbHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void addTime(Pill pill, int x){
-
+    public void addTime(Pill pill, int time){
+        pill.getTimeTaken().put(time, 0);
         SQLiteDatabase db = this.getWritableDatabase();
-        String insertStm = "INSERT INTO " + medicineTableName + " (" +
+        String insertStm = "INSERT INTO " + reminderTableName + " (" +
                 keyId + ","
-                + keyRemindTime  + ")"
+                + keyRemindTime  + ","
+                + keyTaken + ")"
                 + " VALUES( '"
                 + pill.getId()  + "' , '"
-                + pill.getTimes(x) + "' )";
+                + time + "' "
+                + "0)";
         db.execSQL(insertStm);
         db.close();
     }

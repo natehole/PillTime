@@ -13,8 +13,11 @@ import android.widget.ListView;
 
 public class MedicineTodayFragment extends Fragment {
 
+    //dbHelper db;
     public MedicineTodayFragment() {
     }
+
+    dbHelper db = new dbHelper(getActivity().getApplicationContext());
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {

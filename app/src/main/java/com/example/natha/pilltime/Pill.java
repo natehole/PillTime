@@ -2,6 +2,10 @@ package com.example.natha.pilltime;
 
 import android.app.Activity;
 
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -14,7 +18,12 @@ public class Pill extends Activity{
     private int Active;
     private int pillCount;
     private String dosage;
-    private  Vector<Integer> time = new Vector<Integer>();
+
+    // Key is Time i.e. 700 is 7am,
+    // Value is 0 or 1 for false or true as in the medication to take at that time has been taken or has not been taken
+    //private Dictionary<Integer, Integer> timeTaken = new Dictionary<Integer, Integer>();
+    private Map<Integer, Integer> timeTaken = new HashMap<Integer, Integer>();
+    //private Vector<Integer> time = new Vector<Integer>();
     private String notes;
     public Pill(int id, String name, int active, int pillCount, String dosage, int times, String notes) {
         this.Id = id;
@@ -53,12 +62,8 @@ public class Pill extends Activity{
         Active = active;
     }
 
-    public int getTimes(int x) {
-        return time.get(x);
-    }
-
-    public void setTimes(int t) {
-        time.add(t);
+    public Map<Integer, Integer> getTimeTaken(){
+        return timeTaken;
     }
 
     public String getNotes() {
