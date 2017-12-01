@@ -47,8 +47,7 @@ public class dbHelper extends SQLiteOpenHelper {
                 + keyActive + " TEXT, "
                 + keyPill_Count  + " INTEGER, "
                 + keyDosage + " TEXT, "
-                + keyNotes  + " TEXT, "
-                + ")";
+                + keyNotes  + " TEXT)";
 
         String createReminderTable = "CREATE TABLE " + reminderTableName + " ("
                 + keyIdR + " INTERGER PRIMARY KEY, "
@@ -57,8 +56,6 @@ public class dbHelper extends SQLiteOpenHelper {
                 + keyTaken + " TEXT)";
         db.execSQL(createMedicineTable);
         db.execSQL(createReminderTable);
-
-
     }
 
     @Override
@@ -157,17 +154,19 @@ public class dbHelper extends SQLiteOpenHelper {
         Cursor c = db.rawQuery(getActiveStm, null);
         Vector<Pill> activePills = new Vector<Pill>();
         if( c != null){
-            c.moveToFirst();
-            do {
-                //Pill(int id, String name, int active, int pillCount, String dosage, String notes)
-                activePills.add(new Pill(
-                        c.getInt(0), //id
-                        c.getString(1), //name
-                        Integer.parseInt(c.getString(2)), //active
-                        c.getInt(3),
-                        c.getString(4),
-                        c.getString(5)));
-            }while(c.moveToNext());
+            try {
+                c.moveToFirst();
+                do {
+                    //Pill(int id, String name, int active, int pillCount, String dosage, String notes)
+                    activePills.add(new Pill(
+                            c.getInt(0), //id
+                            c.getString(1), //name
+                            Integer.parseInt(c.getString(2)), //active
+                            c.getInt(3),
+                            c.getString(4),
+                            c.getString(5)));
+                }while(c.moveToNext());
+            } catch (Exception e) {}
         }
         return activePills;
     }

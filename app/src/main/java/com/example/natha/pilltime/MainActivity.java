@@ -1,18 +1,25 @@
 package com.example.natha.pilltime;
 
 import android.app.ActionBar;
+//import android.support.v7.app.ActionBar;
+//import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Vector;
+
+public class MainActivity extends Activity {
 
     private Fragment todayFragment;
     private Fragment medListFragment;
@@ -21,9 +28,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if(savedInstanceState == null){
+        /*if(savedInstanceState == null){
             getFragmentManager().beginTransaction().add(R.id.frame, new MedicineTodayFragment()).commit();
-        }
+        }*/
 
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);

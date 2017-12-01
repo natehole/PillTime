@@ -5,31 +5,25 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-/**
- * Created by natha on 11/30/2017.
- */
 
 public class MedicineTodayFragment extends Fragment {
-
-    //dbHelper db;
-    public MedicineTodayFragment() {
-    }
-
-    dbHelper db = new dbHelper(getActivity().getApplicationContext());
+    public MedicineTodayFragment(){}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
+        dbHelper db = new dbHelper(getActivity().getApplicationContext());
         //pull active medicines from db
         Vector<Pill> activePills = db.getActivePills();
 
-        Vector<Pill> takenPills = new Vector<>();
-        Vector<Pill> notTakenPills = new Vector<>();
+        Vector<String> takenPills = new Vector<String>();
+        Vector<String> notTakenPills = new Vector<String>();
 
         //For each pill that is marked active, search through the times listed to take it and for each time listed
         //Add the pill the taken Pills or not taken pills
@@ -39,20 +33,25 @@ public class MedicineTodayFragment extends Fragment {
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry)it.next();
                 if(pair.getValue() == "1"){
-                    takenPills.add(p);
+                    String out = p.getName() + '\n' + p.getDosage()  + "\n" + pair.getKey();
+                    takenPills.add(out);
                 } else {
-                    notTakenPills.add(p);
+                    String out = p.getName() + '\n' + p.getDosage()  + "\n" + pair.getKey();
+                    notTakenPills.add(out);
                 }
                 it.remove();
             }
         }
 
+        ArrayAdapter<String> taken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, takenPills);
+        ArrayAdapter<String> notTaken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, notTakenPills);
+
         View todayView = inflater.inflate(R.layout.today_fragment, container, false);
         ListView medicinesTaken = (ListView) todayView.findViewById(R.id.takenLV);
         ListView medicinesNotTaken = (ListView) todayView.findViewById(R.id.notTakenLV);
-        //Set adapater and create it from queried data
-        //I think takenPills and notTakenPills each need to be parsed and turned into just strings or something
-        // each pill needs its own time at this point, fuuuuck
+
+        medicinesTaken.setAdapter(taken);
+        medicinesNotTaken.setAdapter(notTaken);
 
         return todayView;
     }

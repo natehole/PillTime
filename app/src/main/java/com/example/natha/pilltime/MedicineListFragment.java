@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 /**
@@ -19,6 +20,7 @@ public class MedicineListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         View medListView = inflater.inflate(R.layout.medlist_fragment, container, false);
         ListView medicines = (ListView) medListView.findViewById(R.id.medicationLV);
+        ArrayAdapter<String> meds new ArrayAdapter<String>();
 
         return medListView;
     }
