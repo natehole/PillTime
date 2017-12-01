@@ -4,6 +4,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.graphics.drawable.VectorDrawableCompat;
+
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by Jordan on 11/30/2017.
@@ -115,7 +119,7 @@ public class dbHelper extends SQLiteOpenHelper {
         db.close();
     }
     public Pill getPill(Pill pill){
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         String getPillStm = "SELECT * FROM " + medicineTableName + " WHERE "
                 + keyId + " = " + pill.getId();
         db.execSQL(getPillStm);
@@ -125,18 +129,17 @@ public class dbHelper extends SQLiteOpenHelper {
         }
         //ID, name, active, pillcount , doseage, notes
         Pill pillReturn = new Pill(
-                Integer.parseInt(c.getString(0))
+                c.getInt(0)
                 , c.getString(1)
                 , Integer.parseInt(c.getString(2))
-                , Integer.parseInt(c.getString(3))
+                , c.getInt(3)
                 , c.getString(4)
-                , Integer.parseInt(c.getString(5))
-                , c.getString(6));
+                , c.getString(5));
         db.close();
         return pillReturn;
     }
     public void getTimes(Pill pill){
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         String getTimesStm = "SElECT * FROM " + reminderTableName + " WHERE "
                 + keyId + " = " + pill.getId();
         Cursor c = db.rawQuery(getTimesStm, null);
@@ -145,4 +148,54 @@ public class dbHelper extends SQLiteOpenHelper {
         }
 
     }
+
+    public Vector<Pill> getActivePills(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getActiveStm = "SELECT * FROM " + medicineTableName + " WHERE "
+                + keyActive + " = 1";
+
+        Cursor c = db.rawQuery(getActiveStm, null);
+        Vector<Pill> activePills = new Vector<Pill>();
+        if( c != null){
+            c.moveToFirst();
+            do {
+                //Pill(int id, String name, int active, int pillCount, String dosage, String notes)
+                activePills.add(new Pill(
+                        c.getInt(0), //id
+                        c.getString(1), //name
+                        Integer.parseInt(c.getString(2)), //active
+                        c.getInt(3),
+                        c.getString(4),
+                        c.getString(5)));
+            }while(c.moveToNext());
+        }
+        return activePills;
+    }
+
+
+    /*public Vector<String> getTakenPills(Pill p, int taken){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getTakenStm = "SELECT * FROM " + reminderTableName + " WHERE "
+                + keyTaken + " = '" + taken + "', AND "
+                + keyId + " = " + p.getId();
+        Vector<Pill> takenPills = new Vector<>();
+
+        Cursor c = db.rawQuery(getTakenStm, null);
+        if( c != null){
+            c.moveToFirst();
+            do {
+
+            }while(c.moveToNext());
+            takenPills.add(new Pill(
+                    c.getInt(0), //id
+                    c.getString(1), //name
+                    Integer.parseInt(c.getString(2)), //active
+                    c.getInt(3),
+                    c.getString(4),
+                    c.getString(5)));
+        }
+
+        return takenPills;
+    }*/
+
 }
