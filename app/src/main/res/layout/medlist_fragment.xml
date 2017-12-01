@@ -4,7 +4,7 @@
 
     <Button
         android:id="@+id/addBTN"
-        android:layout_width="50pt"
+        android:layout_width="80pt"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"

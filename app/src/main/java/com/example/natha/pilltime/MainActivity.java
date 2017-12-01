@@ -51,7 +51,8 @@ public class MainActivity extends Activity {
 
     public void addNewMedication(View view){
         //pass intent to new page edit_medication_activity
-        Intent editMedication = new Intent(getApplicationContext(), EditMedicationActivity.class);
+        Intent editMedication = new Intent(MainActivity.this, EditMedicationActivity.class);
+        editMedication.putExtra("name","");
         startActivity(editMedication);
     }
 

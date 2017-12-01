@@ -171,6 +171,29 @@ public class dbHelper extends SQLiteOpenHelper {
         return activePills;
     }
 
+    public Vector<Pill> getAllPills(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String insertStm = "SELECT * FROM "+ medicineTableName;
+        Cursor c = db.rawQuery(insertStm, null);
+        Vector<Pill> allPills = new Vector<Pill>();
+        if( c != null){
+            try {
+                c.moveToFirst();
+                do {
+                    //Pill(int id, String name, int active, int pillCount, String dosage, String notes)
+                    allPills.add(new Pill(
+                            c.getInt(0), //id
+                            c.getString(1), //name
+                            Integer.parseInt(c.getString(2)), //active
+                            c.getInt(3),
+                            c.getString(4),
+                            c.getString(5)));
+                }while(c.moveToNext());
+            } catch (Exception e) {}
+        }
+        return allPills;
+
+    }
 
     /*public Vector<String> getTakenPills(Pill p, int taken){
         SQLiteDatabase db = this.getReadableDatabase();
