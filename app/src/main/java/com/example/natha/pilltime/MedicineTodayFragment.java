@@ -1,7 +1,9 @@
 package com.example.natha.pilltime;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -57,30 +59,27 @@ public class MedicineTodayFragment extends Fragment {
         medicinesTaken.setAdapter(taken);
         medicinesNotTaken.setAdapter(notTaken);
 
-        final Intent editIntent = Intent(, EditMedicationActivity.class);
-
         medicinesTaken.setOnItemClickListener(new OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-                editIntent.putExtra(taken.getItem(position));
+                startAlert(taken.getItem(position));
             }
         });
 
         medicinesNotTaken.setOnItemClickListener(new OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                editIntent.putExtra(notTaken.getItem(position));
+                startAlert(notTaken.getItem(position));
             }
         });
 
-        /*AdapterView.OnItemClickListener medListener = new AdapterView.OnItemClickListener(){
-            @Override
-            public onItemClick(AdapterView<?> adapterView, View view, int i, long l){
-                String selectedItem = mainEventAdapter.getItem(i);
-            }
-        }*/
-
-
         return todayView;
     }
+
+    public void startAlert(String data){
+        AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+        String dataArray[] = data.split(['\n']);
+        alertDialog.setTitle(dataArray[0]);
+    }
+
 }
