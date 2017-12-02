@@ -6,7 +6,10 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TimePicker;
 import android.widget.Toast;
+
+import java.util.Vector;
 
 /**
  * Created by natha on 11/30/2017.
@@ -20,6 +23,7 @@ public class EditMedicationActivity extends Activity {
     EditText etDosage;
     EditText etNotes;
     EditText etTime;
+    private TimePicker time_picker;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +38,8 @@ public class EditMedicationActivity extends Activity {
         etPillCount = (EditText) findViewById(R.id.pillCountET);
         etDosage = (EditText) findViewById(R.id.dosageET);
         etNotes = (EditText) findViewById(R.id.notesET);
-        etTime = (EditText) findViewById(R.id.timeET);
+        time_picker= (TimePicker) findViewById(R.id.timePicker);
+
     }
     public void insertToDb(View view){
         dbHelper db = new dbHelper(this);
@@ -46,6 +51,8 @@ public class EditMedicationActivity extends Activity {
         {
             active = 0;
         }
+        int hour = time_picker.getCurrentHour();
+        int minute = time_picker.getCurrentMinute();
         Pill pill = new Pill(
                 0,
                 etName.getText().toString(),
@@ -54,11 +61,17 @@ public class EditMedicationActivity extends Activity {
                 etDosage.getText().toString(),
                 etNotes.getText().toString()
         );
+        pill.setTimeTake(hour + minute, 0);
         db.addPill(pill);
-        db.close();
-        Toast.makeText(this, "Succesfully added to database", Toast.LENGTH_SHORT).show();
+        db.close();Vector<String> allMeds = new Vector<>();
+        Vector<Integer> Times = pill.getAllTimes();
+        Toast.makeText(this, Times.get(0), Toast.LENGTH_SHORT).show();
     }
     public void test(View view){
-        Toast.makeText(this, etTime.getText().toString(), Toast.LENGTH_SHORT).show();
+        int hour = time_picker.getCurrentHour();
+        int minute = time_picker.getCurrentMinute();
+        Toast.makeText(this, hour + ":" + minute, Toast.LENGTH_SHORT).show();
+
+
     }
 }

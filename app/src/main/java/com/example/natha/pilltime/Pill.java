@@ -2,8 +2,6 @@ package com.example.natha.pilltime;
 
 import android.app.Activity;
 
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -60,6 +58,16 @@ public class Pill extends Activity{
         Active = active;
     }
 
+    public Vector<Integer> getAllTimes(){
+        Vector<Integer> allTimes = new Vector<>();
+        for (int key: timeTaken.keySet()) {
+            allTimes.add(key);
+        }
+        return allTimes;
+    }
+    public void setTimeTake(int t, int taken){
+        timeTaken.put(t,taken);
+    }
     public Map<Integer, Integer> getTimeTaken(){
         return timeTaken;
     }
