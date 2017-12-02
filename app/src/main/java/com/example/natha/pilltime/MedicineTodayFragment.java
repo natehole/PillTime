@@ -1,14 +1,10 @@
 package com.example.natha.pilltime;
 
-import android.app.Activity;
 import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -57,7 +53,7 @@ public class MedicineTodayFragment extends Fragment {
         medicinesTaken.setAdapter(taken);
         medicinesNotTaken.setAdapter(notTaken);
 
-        final Intent editIntent = Intent(, EditMedicationActivity.class);
+      /*  final Intent editIntent = Intent(, EditMedicationActivity.class);
 
         medicinesTaken.setOnItemClickListener(new OnItemClickListener(){
             @Override

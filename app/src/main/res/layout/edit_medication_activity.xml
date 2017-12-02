@@ -10,6 +10,7 @@
             android:id="@+id/saveBTN"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="insertToDb"
             android:text="Save"
             android:textAllCaps="false" />
 
@@ -17,6 +18,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="24dp"
+                android:layout_marginStart="24dp"
+                android:onClick="test"
+                android:text="Button" />
         </RelativeLayout>
 
     </TableRow>
@@ -40,8 +52,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
+            android:hint="Name"
             android:inputType="text"
-            android:text="Name"
             android:textColor="@color/colorTaken" />
     </TableRow>
 
@@ -64,8 +76,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
+            android:hint="Dosage"
             android:inputType="text"
-            android:text="Dosage"
             android:textColor="@color/colorTaken" />
     </TableRow>
 
@@ -88,8 +100,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
+            android:hint="Pill Count"
             android:inputType="number"
-            android:text="Pill Count"
             android:textColor="@color/colorTaken" />
     </TableRow>
 
@@ -132,17 +144,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
+            android:hint="notes"
             android:inputType="text"
             android:text=""
             android:textColor="@color/colorTaken" />
     </TableRow>
 
     <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <TextView
-            android:id="@+id/timesTV"
+            android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
@@ -151,11 +165,27 @@
             android:textColor="@android:color/black"
             android:textSize="18sp" />
 
+        <EditText
+            android:id="@+id/timeET"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/textView2"
+            android:layout_marginTop="19dp"
+            android:ems="10"
+            android:inputType="time" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
         <ListView
             android:id="@+id/timesLV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
     </TableRow>
 
 
