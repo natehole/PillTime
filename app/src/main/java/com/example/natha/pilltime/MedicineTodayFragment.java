@@ -2,6 +2,7 @@ package com.example.natha.pilltime;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +22,7 @@ public class MedicineTodayFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstance) {
-        dbHelper db = new dbHelper(getActivity().getApplicationContext());
+        final dbHelper db = new dbHelper(getActivity().getApplicationContext());
         //pull active medicines from db
         Vector<Pill> activePills = db.getActivePills();
 
@@ -50,7 +51,6 @@ public class MedicineTodayFragment extends Fragment {
                         String out = "Name:" +  p.getName() + '\n'
                                 + "Dosage:" + p.getDosage() + "\n"
                                 + "time:" + time;
-
                         notTakenPills.add(out);
                     }
                     it.remove();
@@ -76,8 +76,32 @@ public class MedicineTodayFragment extends Fragment {
 
         medicinesNotTaken.setOnItemClickListener(new OnItemClickListener(){
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 startAlert(notTaken.getItem(position));
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Did you take your medication?")
+                            .setMessage("Please select taken if you have taken your medication, or cancel if you havnt")
+                            .setPositiveButton("Taken?", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    String pillS = notTaken.getItem(position);
+                                    String[] extraPillInfo = pillS.split("\n");
+                                    String st2 = extraPillInfo[0].substring(5, extraPillInfo[0].length());
+                                    Pill p = db.getPillByName(st2);
+                                    p.setActive(1);
+                                    p.setPillCount(p.getPillCount() - 1);
+                                    db.updatePill(p);
+                                    notTaken.remove(pillS);
+                                    taken.add(pillS);
+                                    notTaken.notifyDataSetChanged();
+                                }
+                            })
+                            .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                }
+                            })
+                            .setNeutralButton("Close", null).show();
             }
         });
         return todayView;
