@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.Collections;
 import java.util.Vector;
 
 /**
@@ -254,6 +255,7 @@ public class dbHelper extends SQLiteOpenHelper {
             } catch (Exception e) {}
         }
         db.close();
+        Collections.sort(allTimes);
         return allTimes;
     }
 

@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
@@ -65,6 +66,9 @@ public class MedicineTodayFragment extends Fragment {
         View todayView = inflater.inflate(R.layout.today_fragment, container, false);
         ListView medicinesTaken = (ListView) todayView.findViewById(R.id.takenLV);
         ListView medicinesNotTaken = (ListView) todayView.findViewById(R.id.notTakenLV);
+
+        sortMedication(taken);
+        sortMedication(notTaken);
 
         medicinesTaken.setAdapter(taken);
         medicinesNotTaken.setAdapter(notTaken);
@@ -170,6 +174,28 @@ public class MedicineTodayFragment extends Fragment {
         int rawTime = hour + minute;
         return rawTime;
     }
+
+    public void sortMedication(ArrayAdapter<String> arrayAdapter){
+        arrayAdapter.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                String []arrayO1 = o1.split("\n");
+                String []arrayO2 = o2.split("\n");
+
+                Integer rawO1Time = unFormatTime(arrayO1[2].substring(5));
+                Integer rawO2Time = unFormatTime(arrayO2[2].substring(5));
+
+                if (rawO1Time < rawO2Time) {
+                    return -1;
+                }
+                else{
+                    return 1;
+                }
+
+            }
+        });
+    }
+
  /*   public Vector<String> sortTimes(ArrayL<String> pills){ //pill = taken/nottaken
         int[] times = new int[pills.size()];
         String[] names = new String[pills.size()];
