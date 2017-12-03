@@ -123,12 +123,21 @@ public class dbHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void removePillTimeByName(String pillName, int time){
+    public void removePillTime(int pillId, int time){
         SQLiteDatabase db = this.getWritableDatabase();
-        Pill pill = getPillByName(pillName);
         String deleteStm = "DELETE FROM " + reminderTableName + " WHERE "
-                + keyIdTable + " = " + pill.getId() + " AND " + keyRemindTime + " = " + time;
+                + keyIdTable + " = " + pillId + " AND " + keyRemindTime + " = " + time;
         db.execSQL(deleteStm);
+        db.close();
+    }
+
+    public void updatePillTime(int pillId, int oldTime, int newTime) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String updateStm = "UPDATE " + reminderTableName + " SET "
+                + keyRemindTime  + " = " + newTime
+                + " WHERE " + keyIdTable + " = " + pillId +
+                " AND " + keyRemindTime + " = " + oldTime;
+        db.execSQL(updateStm);
         db.close();
     }
 
@@ -288,7 +297,6 @@ public class dbHelper extends SQLiteOpenHelper {
         Collections.sort(allTimes);
         return allTimes;
     }
-
 
     /*public Vector<String> getTakenPills(Pill p, Integer taken){
         SQLiteDatabase db = this.getReadableDatabase();

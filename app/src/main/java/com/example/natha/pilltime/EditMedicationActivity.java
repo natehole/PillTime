@@ -186,7 +186,7 @@ public class EditMedicationActivity extends Activity {
         lvTimes.setAdapter(arrayAdapter);
 
         final dbHelper db = new dbHelper(EditMedicationActivity.this);
-
+        final Pill p = db.getPillByName(etName.getText().toString());
         lvTimes.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id){
@@ -196,13 +196,33 @@ public class EditMedicationActivity extends Activity {
                         .setPositiveButton("Edit", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                //open the thingyy
+                                Integer timeVal = Integer.parseInt(arrayAdapter.getItem(position));
+                                final Integer newTimeVal;
+
+                                TimePickerDialog timePickerDialog = new TimePickerDialog(EditMedicationActivity.this, new TimePickerDialog.OnTimeSetListener(){
+                                    @Override
+                                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                        //Logic Wrong here
+                                        currentPillTime = hourOfDay * 100 + minute;
+                                        currentPill.setTimeTake(currentPillTime, 0);
+                                        timeVec.add(currentPillTime);
+                                        arrayAdapter.add(String.valueOf(currentPillTime));
+                                        arrayAdapter.notifyDataSetChanged();
+                                    }
+                                }, 12, 0, true);
+                                timePickerDialog.setTitle("Select a Time");
+                                timePickerDialog.show();
+
+                                db.updatePillTime(p.getId(), timeVal, currentPillTime);
+                                arrayAdapter.notifyDataSetChanged();
                             }
                         })
                         .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                db.removePillTimeByName(etName.getText().toString(), Integer.parseInt(arrayAdapter.getItem(position)));
+                                Integer timeVal = Integer.parseInt(arrayAdapter.getItem(position));
+                                db.removePillTime(p.getId(), timeVal);
+                                arrayAdapter.notifyDataSetChanged();
                             }
                         })
                         .setNeutralButton("Close", null).show();
