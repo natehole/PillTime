@@ -69,8 +69,35 @@ public class MedicineTodayFragment extends Fragment {
 
         medicinesTaken.setOnItemClickListener(new OnItemClickListener(){
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 startAlert(taken.getItem(position));
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Did you take your medication?")
+                        .setMessage("Please select taken if you have taken your medication, or cancel if you havnt")
+                        .setPositiveButton("undo taken?", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String pillS = taken.getItem(position);
+                                String[] extraPillInfo = pillS.split("\n");
+                                String st2 = extraPillInfo[0].substring(5, extraPillInfo[0].length());
+                                String time = extraPillInfo[2].substring(5, extraPillInfo[2].length());
+                                int timeI = unFormatTime(time); //integer to hold the time unformatted
+                                Pill p = db.getPillByName(st2);
+                                p.setTimeTake(timeI, 0);
+                                p.setPillCount(p.getPillCount() + 1);
+                                db.updatePill(p);
+                                taken.remove(pillS);
+                                notTaken.add(pillS);
+                                notTaken.notifyDataSetChanged();
+                                taken.notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                            }
+                        })
+                        .setNeutralButton("Close", null).show();
             }
         });
 
@@ -86,14 +113,19 @@ public class MedicineTodayFragment extends Fragment {
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     String pillS = notTaken.getItem(position);
                                     String[] extraPillInfo = pillS.split("\n");
-                                    String st2 = extraPillInfo[0].substring(5, extraPillInfo[0].length());
+                                    String st2 = extraPillInfo[0].substring(5, extraPillInfo[0].length()); //gets rid of name: and time:xx:yy = xxyy
+                                    String time = extraPillInfo[2].substring(5, extraPillInfo[2].length());
+                                    int timeI = unFormatTime(time); //integer to hold the time unformatted
                                     Pill p = db.getPillByName(st2);
-                                    p.setActive(1);
+                                    p.setTimeTake(timeI, 1);
                                     p.setPillCount(p.getPillCount() - 1);
                                     db.updatePill(p);
                                     notTaken.remove(pillS);
                                     taken.add(pillS);
+                                   // notTakenPills = sortTimes(notTaken);
                                     notTaken.notifyDataSetChanged();
+
+                                    taken.notifyDataSetChanged();
                                 }
                             })
                             .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
@@ -121,5 +153,39 @@ public class MedicineTodayFragment extends Fragment {
             times += (i - i % 100) / 100 + ":" + (i%100) +"\n";}
         return times;
     }
+    public int unFormatTime(String i){
+        String[] rawString = i.split(":");
+        int hour = Integer.parseInt(rawString[0]) * 100;
+        int minute = Integer.parseInt(rawString[1]);
+        int rawTime = hour + minute;
+        return rawTime;
+    }
+ /*   public Vector<String> sortTimes(ArrayL<String> pills){ //pill = taken/nottaken
+        int[] times = new int[pills.size()];
+        String[] names = new String[pills.size()];
+        for(int i=0 ; i<pills.size() ; i++){
+            String rawString = pills.get(i); // get the string for every position
+            String[] splitString = rawString.split("\n");
+            times[i] = unFormatTime(splitString[2]);
+        }
+        int n = times.length;
+        int temp = 0;
+        for(int i=0; i < n; i++){
+            for(int j=1; j < (n-i); j++){
+                if(times[j-1] > times[j]){
+                    //swap elements
+                    temp = times[j-1];
+                    times[j-1] = times[j];
+                    times[j] = temp;
+                    pills.add(j-1,pills.get(j));
+                    pills.add(j, pills.get(j-1));
+                    pills.remove(pills.get(j+1));
+                    pills.remove(pills.get(j+1));
+                }
+            }
+        }
+        return pills;
+    }
+*/
 
 }

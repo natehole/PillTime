@@ -98,4 +98,7 @@ public class Pill extends Activity{
         }
         return allTimes;
     }
+    public void setTaken(int k, int i){ //k = key i = value of hash map trying to set
+        timeTaken.put(k, i);
+    }
 }
