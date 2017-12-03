@@ -23,6 +23,8 @@ import java.util.Vector;
 
 public class EditMedicationActivity extends Activity {
 
+    boolean timeInput;
+    Vector<String> times;
     ArrayAdapter<String> arrayAdapter;
     Pill currentPill;
     String intentExtraPill;
@@ -41,6 +43,8 @@ public class EditMedicationActivity extends Activity {
         setContentView(R.layout.edit_medication_activity);
         Initialize();
 
+        times = new Vector<>();
+
         try {
             intentExtraPill = getIntent().getStringExtra("pill");
             if (!intentExtraPill.isEmpty()){
@@ -48,6 +52,10 @@ public class EditMedicationActivity extends Activity {
                 dbHelper db = new dbHelper(this);
                 db.close();
                 currentPill = db.getPillByName(extraPillInfo[0]);
+                Vector<Integer> currentPillTimes = db.getAllTimes(currentPill);
+                for (Integer time : currentPillTimes){
+                    times.add(time.toString());
+                }
             }
             else {
                 currentPill = new Pill();
@@ -67,9 +75,12 @@ public class EditMedicationActivity extends Activity {
         //time_picker= (TimePicker) findViewById(R.id.timePicker);
 
     }
+
     public void insertToDb(View view){
         dbHelper db = new dbHelper(this);
+        String name = etName.getText().toString();
         int active = 0;
+
         if(cbActive.isChecked()){
             active = 1;
         }
@@ -85,10 +96,22 @@ public class EditMedicationActivity extends Activity {
                 etDosage.getText().toString(),
                 etNotes.getText().toString()
         );
-        pill.setTimeTake(currentPillTime, 0);
-        db.addPill(pill);
-        pill.setId(db.getPillId(pill));
-        db.addTime(pill, currentPillTime);
+        if (timeInput){
+            pill.setTimeTake(currentPillTime, 0);
+        }
+
+        if(!db.checkDB(name)){
+            db.addPill(pill);
+            pill.setId(db.getPillId(pill));
+        } else {
+            pill.setId(db.getPillId(pill));
+            db.updatePill(pill);
+        }
+        if (timeInput){
+            db.addTime(pill, currentPillTime);
+        }
+
+        timeInput = false;
         db.close();
 
         Intent mainIntent = new Intent(EditMedicationActivity.this, MainActivity.class);
@@ -96,6 +119,7 @@ public class EditMedicationActivity extends Activity {
     }
 
     public void addNewTime(View view){
+        timeInput = true;
         final Calendar currentTime = Calendar.getInstance();
         int hour = currentTime.get(Calendar.HOUR_OF_DAY);
         int minute = currentTime.get(Calendar.MINUTE);
@@ -125,8 +149,8 @@ public class EditMedicationActivity extends Activity {
             etName.setText(currentPill.getName());
             etDosage.setText(currentPill.getDosage());
             etNotes.setText(currentPill.getNotes());
-            etPillCount.setText(currentPill.getPillCount());
-            arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, currentPill.getAllTimesS());
+            etPillCount.setText(currentPill.getPillCount().toString());
+            arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, times);
         }
         else
         {

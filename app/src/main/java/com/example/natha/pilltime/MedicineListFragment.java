@@ -27,12 +27,6 @@ public class MedicineListFragment extends Fragment {
         ListView medicines = (ListView) medListView.findViewById(R.id.medicationLV);
         Vector<Pill> allPills = db.getAllPills();
 
-
-        /*try {
-            String intentExtraPill = getActivity().getIntent().getExtras().getString("pill");
-            String[] splitString = intentExtraPill.split("\n");
-        }catch (Exception e) {}*/
-
         Vector<String> allMeds = new Vector<>();
 
         for(Pill p : allPills) {

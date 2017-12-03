@@ -13,8 +13,8 @@ import java.util.Vector;
 public class Pill extends Activity{
     private int Id;
     private String name;
-    private int Active;
-    private int pillCount;
+    private Integer Active;
+    private Integer pillCount;
     private String dosage;
     private String notes;
     private Map<Integer, Integer> timeTaken = new HashMap<Integer, Integer>();
@@ -41,11 +41,11 @@ public class Pill extends Activity{
         //1 = true, 0 = false
         return  Active;
     }
-    public int getPillCount() {
+    public Integer getPillCount() {
         return pillCount;
     }
 
-    public void setPillCount(int pillCount) {
+    public void setPillCount(Integer pillCount) {
         this.pillCount = pillCount;
     }
 

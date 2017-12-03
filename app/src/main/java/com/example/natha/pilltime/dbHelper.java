@@ -15,7 +15,7 @@ import java.util.Vector;
  */
 
 public class dbHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final Integer DATABASE_VERSION = 1;
 
     private static final String DATABASE_NAME = "medicineReminder";
 
@@ -84,7 +84,7 @@ public class dbHelper extends SQLiteOpenHelper {
         db.execSQL(insertStm);
         db.close();
     }
-    public void addTime(Pill pill, int time){
+    public void addTime(Pill pill, Integer time){
         pill.getTimeTaken().put(time, 0);
         SQLiteDatabase db = this.getWritableDatabase();
         String insertStm = "INSERT INTO " + reminderTableName + " (" +
@@ -98,9 +98,9 @@ public class dbHelper extends SQLiteOpenHelper {
         db.execSQL(insertStm);
         db.close();
     }
-    public int getPillId(Pill pill){
+    public Integer getPillId(Pill pill){
         SQLiteDatabase db = this.getReadableDatabase();
-        int id = 0;
+        Integer id = 0;
         String getStm = "SELECT * FROM " + medicineTableName + " WHERE "
                 + keyName + " = '" + pill.getName() + "'";
         Cursor c = db.rawQuery(getStm, null);
@@ -114,7 +114,6 @@ public class dbHelper extends SQLiteOpenHelper {
         }
         db.close();
         return id;
-
     }
     public void removePill(Pill pill){ // removes the pill
         SQLiteDatabase db = this.getWritableDatabase();
@@ -128,7 +127,7 @@ public class dbHelper extends SQLiteOpenHelper {
                 + keyActive+ " = '" + pill.getActive() + "' , "
                 + keyPill_Count + " = '" + pill.getPillCount() + "' , "
                 + keyDosage + " = '" + pill.getDosage() + "' , "
-                + keyNotes   + " = ;" + pill.getNotes() + "' "
+                + keyNotes   + " = '" + pill.getNotes() + "' "
                 + "WHERE " + keyId + " = " + pill.getId();
         db.execSQL(updateStm);
         db.close();
@@ -137,6 +136,26 @@ public class dbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String getPillStm = "SELECT * FROM " + medicineTableName + " WHERE "
                 + keyId + " = " + pill.getId();
+        db.execSQL(getPillStm);
+        Cursor c = db.rawQuery(getPillStm, null);
+        if( c != null){
+            c.moveToFirst();
+        }
+        //ID, name, active, pillcount , doseage, notes
+        Pill pillReturn = new Pill(
+                c.getInt(0)
+                , c.getString(1)
+                , Integer.parseInt(c.getString(2))
+                , c.getInt(3)
+                , c.getString(4)
+                , c.getString(5));
+        db.close();
+        return pillReturn;
+    }
+    public Pill getPillByName(String s){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getPillStm = "SELECT * FROM " + medicineTableName + " WHERE "
+                + keyName + " = '" + s + "'";
         db.execSQL(getPillStm);
         Cursor c = db.rawQuery(getPillStm, null);
         if( c != null){
@@ -172,7 +191,7 @@ public class dbHelper extends SQLiteOpenHelper {
             try {
                 c.moveToFirst();
                 do {
-                    //Pill(int id, String name, int active, int pillCount, String dosage, String notes)
+                    //Pill(Integer id, String name, Integer active, Integer pillCount, String dosage, String notes)
                     activePills.add(new Pill(
                             c.getInt(0), //id
                             c.getString(1), //name
@@ -182,6 +201,12 @@ public class dbHelper extends SQLiteOpenHelper {
                             c.getString(5)));
                 }while(c.moveToNext());
             } catch (Exception e) {}
+            for(Pill p : activePills){
+                Vector<Integer> allTimes = this.getAllTimes(p);
+                for (Integer i : allTimes){
+                    p.setTimeTake(i, 0);
+                }
+            }
         }
         db.close();
         return activePills;
@@ -195,7 +220,7 @@ public class dbHelper extends SQLiteOpenHelper {
             try {
                 c.moveToFirst();
                 do {
-                    //Pill(int id, String name, int active, int pillCount, String dosage, String notes)
+                    //Pill(Integerid, String name, Integeractive, IntegerpillCount, String dosage, String notes)
                     allPills.add(new Pill(
                             c.getInt(0), //id
                             c.getString(1), //name
@@ -205,6 +230,12 @@ public class dbHelper extends SQLiteOpenHelper {
                             c.getString(5)));
                 }while(c.moveToNext());
             } catch (Exception e) {}
+            for(Pill p : allPills){
+                Vector<Integer> allTimes = p.getAllTimes();
+                for (Integer i : allTimes){
+                    p.setTimeTake(i, 0);
+                }
+            }
         }
         db.close();
         return allPills;
@@ -219,7 +250,7 @@ public class dbHelper extends SQLiteOpenHelper {
             try {
                 c.moveToFirst();
                 do {
-                    //Pill(int id, String name, int active, int pillCount, String dosage, String notes)
+                    //Pill(Integer id, String name, Integer active, Integer pillCount, String dosage, String notes)
                     allTimes.add(c.getInt(2));
                 }while(c.moveToNext());
             } catch (Exception e) {}
@@ -228,7 +259,7 @@ public class dbHelper extends SQLiteOpenHelper {
         return allTimes;
     }
 
-    /*public Vector<String> getTakenPills(Pill p, int taken){
+    /*public Vector<String> getTakenPills(Pill p, Integer taken){
         SQLiteDatabase db = this.getReadableDatabase();
         String getTakenStm = "SELECT * FROM " + reminderTableName + " WHERE "
                 + keyTaken + " = '" + taken + "', AND "
@@ -253,35 +284,38 @@ public class dbHelper extends SQLiteOpenHelper {
         return takenPills;
     }*/
 
-    public Pill getPillByName(String s){
+    public boolean checkDB(String s){ //s = name
+        Boolean inDb = false; //boolean to display if pill is in DB
         SQLiteDatabase db = this.getReadableDatabase();
         String getPillStm = "SELECT * FROM " + medicineTableName + " WHERE "
-                + keyName + " = " + s;
-        db.execSQL(getPillStm);
+                + keyName + " = '" + s + "'";
         Cursor c = db.rawQuery(getPillStm, null);
-        if( c != null){
+        if (c!=null){
             c.moveToFirst();
+            try{ //try to get the first value
+                if(c.getInt(0) > 0)
+                {
+                    inDb = true;
+                }
+            }catch(Exception e){ //if there is nothing in database it will fail
+                inDb = false;
+            }
+
         }
-        //ID, name, active, pillcount , doseage, notes
-        Pill pillReturn = new Pill(
-                c.getInt(0)
-                , c.getString(1)
-                , Integer.parseInt(c.getString(2))
-                , c.getInt(3)
-                , c.getString(4)
-                , c.getString(5));
+
+
         db.close();
-        return pillReturn;
+        return inDb;
     }
 
-    public int testTimes(){
+    public Integer testTimes(){
         SQLiteDatabase db = this.getReadableDatabase();
         String insertStm = "SELECT * FROM " + reminderTableName;
         Cursor c = db.rawQuery(insertStm, null);
-        int placeholder = 0;
-        int placeholder2 = 0;
-        int placeholder3 = 0;
-        int placeholder4 = 0;
+        Integer placeholder = 0;
+        Integer placeholder2 = 0;
+        Integer placeholder3 = 0;
+        Integer placeholder4 = 0;
         if( c != null){
             try {
                 c.moveToFirst();
