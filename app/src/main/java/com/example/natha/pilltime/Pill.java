@@ -35,6 +35,7 @@ public class Pill extends Activity{
     {
         return name;
     }
+    public void setName(String n) {name = n;}
     public int getActive()
     {
         //1 = true, 0 = false
@@ -89,10 +90,11 @@ public class Pill extends Activity{
     public void setId(int id) {
         Id = id;
     }
-    public String getAllTimesS(){
-        String allTimes = "";
-        for (int key: timeTaken.keySet()) {
-            allTimes+= key + "\n";
+
+    public Vector<String> getAllTimesS(){
+        Vector<String> allTimes = new Vector<>();
+        for (Integer key: timeTaken.keySet()) {
+            allTimes.add(key.toString());
         }
         return allTimes;
     }

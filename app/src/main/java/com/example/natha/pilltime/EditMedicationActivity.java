@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -21,7 +23,7 @@ import java.util.Vector;
 
 public class EditMedicationActivity extends Activity {
 
-
+    ArrayAdapter<String> arrayAdapter;
     Pill currentPill;
     String intentExtraPill;
     private int currentPillTime;
@@ -30,7 +32,8 @@ public class EditMedicationActivity extends Activity {
     EditText etPillCount;
     EditText etDosage;
     EditText etNotes;
-    EditText etTime;
+    ListView lvTimes;
+
     private TimePicker time_picker;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,8 +43,15 @@ public class EditMedicationActivity extends Activity {
 
         try {
             intentExtraPill = getIntent().getStringExtra("pill");
-            String[] extraPillInfo = intentExtraPill.split("\n");
-            System.out.println();
+            if (!intentExtraPill.isEmpty()){
+                String[] extraPillInfo = intentExtraPill.split("\n");
+                dbHelper db = new dbHelper(this);
+                db.close();
+                currentPill = db.getPillByName(extraPillInfo[0]);
+            }
+            else {
+                currentPill = new Pill();
+            }
         }catch(Exception e){}
 
         poplateData();
@@ -53,6 +63,7 @@ public class EditMedicationActivity extends Activity {
         etPillCount = (EditText) findViewById(R.id.pillCountET);
         etDosage = (EditText) findViewById(R.id.dosageET);
         etNotes = (EditText) findViewById(R.id.notesET);
+        lvTimes = (ListView) findViewById(R.id.timesLV);
         //time_picker= (TimePicker) findViewById(R.id.timePicker);
 
     }
@@ -85,7 +96,7 @@ public class EditMedicationActivity extends Activity {
     }
 
     public void addNewTime(View view){
-        Calendar currentTime = Calendar.getInstance();
+        final Calendar currentTime = Calendar.getInstance();
         int hour = currentTime.get(Calendar.HOUR_OF_DAY);
         int minute = currentTime.get(Calendar.MINUTE);
 
@@ -96,7 +107,10 @@ public class EditMedicationActivity extends Activity {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 currentPillTime = hourOfDay * 100 + minute;
-                //Handle Data
+                currentPill.getAllTimesS().add(currentTime.toString());
+
+                arrayAdapter.add(currentTime.toString());
+                arrayAdapter.notifyDataSetChanged();
             }
         };
 
@@ -112,6 +126,7 @@ public class EditMedicationActivity extends Activity {
             etDosage.setText(currentPill.getDosage());
             etNotes.setText(currentPill.getNotes());
             etPillCount.setText(currentPill.getPillCount());
+            arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, currentPill.getAllTimesS());
         }
         else
         {
@@ -119,7 +134,9 @@ public class EditMedicationActivity extends Activity {
             etDosage.setText("");
             etNotes.setText("");
             etPillCount.setText("");
+            arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, new String[]{""});
         }
+        lvTimes.setAdapter(arrayAdapter);
     }
 
 }

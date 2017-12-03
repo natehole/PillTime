@@ -28,11 +28,10 @@ public class MedicineListFragment extends Fragment {
         Vector<Pill> allPills = db.getAllPills();
 
 
-        try {
+        /*try {
             String intentExtraPill = getActivity().getIntent().getExtras().getString("pill");
             String[] splitString = intentExtraPill.split("\n");
-            System.out.println("fuck");
-        }catch (Exception e) {}
+        }catch (Exception e) {}*/
 
         Vector<String> allMeds = new Vector<>();
 

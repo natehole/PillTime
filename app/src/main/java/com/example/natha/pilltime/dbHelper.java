@@ -253,6 +253,27 @@ public class dbHelper extends SQLiteOpenHelper {
         return takenPills;
     }*/
 
+    public Pill getPillByName(String s){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getPillStm = "SELECT * FROM " + medicineTableName + " WHERE "
+                + keyName + " = " + s;
+        db.execSQL(getPillStm);
+        Cursor c = db.rawQuery(getPillStm, null);
+        if( c != null){
+            c.moveToFirst();
+        }
+        //ID, name, active, pillcount , doseage, notes
+        Pill pillReturn = new Pill(
+                c.getInt(0)
+                , c.getString(1)
+                , Integer.parseInt(c.getString(2))
+                , c.getInt(3)
+                , c.getString(4)
+                , c.getString(5));
+        db.close();
+        return pillReturn;
+    }
+
     public int testTimes(){
         SQLiteDatabase db = this.getReadableDatabase();
         String insertStm = "SELECT * FROM " + reminderTableName;
