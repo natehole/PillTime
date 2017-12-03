@@ -1,7 +1,9 @@
 package com.example.natha.pilltime;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Vector;
@@ -21,6 +24,8 @@ import java.util.Vector;
 
 public class EditMedicationActivity extends Activity {
 
+
+    Vector<Integer> timeVec = new Vector<>();
     boolean timeInput;
     Vector<String> times;
     ArrayAdapter<String> arrayAdapter;
@@ -74,45 +79,54 @@ public class EditMedicationActivity extends Activity {
     }
 
     public void insertToDb(View view){
-        dbHelper db = new dbHelper(this);
-        String name = etName.getText().toString();
-        int active = 0;
-        if(cbActive.isChecked()){
-            active = 1;
-        }
-        else
+        if(etName.length() == 0 || etPillCount.length() == 0 || etDosage.length() == 0)
         {
-            active = 0;
+            String errmsg = "You did not input enough data";
+            Toast toast = new Toast(getApplicationContext());
+            toast.makeText(getApplicationContext(), errmsg, Toast.LENGTH_LONG).show();
         }
-        Pill pill = new Pill(
-                0,
-                etName.getText().toString(),
-                active,
-                Integer.parseInt(etPillCount.getText().toString()),
-                etDosage.getText().toString(),
-                etNotes.getText().toString()
-        );
-        if (timeInput){
-            pill.setTimeTake(currentPillTime, 0);
-        }
+        else{
+            dbHelper db = new dbHelper(this);
+            String name = etName.getText().toString();
+            int active = 0;
+            if(cbActive.isChecked()){
+                active = 1;
+            }
+            else
+            {
+                active = 0;
+            }
+            Pill pill = new Pill(
+                    0,
+                    etName.getText().toString(),
+                    active,
+                    Integer.parseInt(etPillCount.getText().toString()),
+                    etDosage.getText().toString(),
+                    etNotes.getText().toString()
+            );
+            if (timeInput){
+                pill.setTimeTake(currentPillTime, 0);
+            }
 
-        if(!db.checkDB(name)){
-            db.addPill(pill);
-            pill.setId(db.getPillId(pill));
-        } else {
-            pill.setId(db.getPillId(pill));
-            db.updatePill(pill);
+            if(!db.checkDB(name)){
+                db.addPill(pill);
+                pill.setId(db.getPillId(pill));
+            } else {
+                pill.setId(db.getPillId(pill));
+                db.updatePill(pill);
+            }
+            if (timeInput){
+                for (int i: timeVec){
+                        db.addTime(pill, i);
+                }
+            }
+            timeInput = false;
+            db.close();
+            Intent mainIntent = new Intent(EditMedicationActivity.this, MainActivity.class);
+            startActivity(mainIntent);
         }
-        if (timeInput){
-            db.addTime(pill, currentPillTime);
-        }
-
-        timeInput = false;
-        db.close();
-
-        Intent mainIntent = new Intent(EditMedicationActivity.this, MainActivity.class);
-        startActivity(mainIntent);
     }
+
 
     public void addNewTime(View view){
         timeInput = true;
@@ -127,10 +141,16 @@ public class EditMedicationActivity extends Activity {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 currentPillTime = hourOfDay * 100 + minute;
-                currentPill.getAllTimesS().add(currentTime.toString());
-                arrayAdapter.add(String.valueOf(currentPillTime));
-                arrayAdapter.notifyDataSetChanged();
-
+                if(arrayAdapter.getPosition(String.valueOf(currentPillTime)) == -1)
+                {
+                    currentPill.setTimeTake(currentPillTime, 0);
+                    timeVec.add(currentPillTime);
+                    arrayAdapter.add(String.valueOf(currentPillTime));
+                    arrayAdapter.notifyDataSetChanged();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Time is already here", Toast.LENGTH_SHORT).show();
+                }
             }
         };
 
@@ -163,6 +183,26 @@ public class EditMedicationActivity extends Activity {
             arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, times   );
         }
         lvTimes.setAdapter(arrayAdapter);
+    }
+    public void cancel(View view){
+        AlertDialog alertDialogBuilder = new AlertDialog.Builder(this)
+                .setTitle("EXIT")
+                .setMessage("Cancel and return to previous page?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent mainIntent = new Intent(EditMedicationActivity.this, MainActivity.class);
+                        startActivity(mainIntent);
+                    }
+                })
+                .setNegativeButton("no", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                }).show();
+
+
+
     }
 
 }

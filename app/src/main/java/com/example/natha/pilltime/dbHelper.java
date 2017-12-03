@@ -5,6 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -200,9 +203,9 @@ public class dbHelper extends SQLiteOpenHelper {
                 }while(c.moveToNext());
             } catch (Exception e) {}
             for(Pill p : activePills){
-                Vector<Integer> allTimes = this.getAllTimes(p);
-                for (Integer i : allTimes){
-                    p.setTimeTake(i, 0);
+                Map<Integer, Integer> allTimes = this.getAllTimesTaken(p);
+                for (Integer i : allTimes.keySet()){
+                    p.setTimeTake(i, allTimes.get(i));
                 }
             }
         }
@@ -238,6 +241,24 @@ public class dbHelper extends SQLiteOpenHelper {
         db.close();
         return allPills;
     }
+    public Map<Integer, Integer> getAllTimesTaken(Pill pill){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String insertStm = "SELECT * FROM " + reminderTableName + " WHERE "
+                + keyIdTable + " = " + pill.getId();
+        Cursor c = db.rawQuery(insertStm, null);
+        Map<Integer, Integer> allTimes = new HashMap<Integer, Integer>();
+        if( c != null){
+            try {
+                c.moveToFirst();
+                do {
+                    //Pill(Integer id, String name, Integer active, Integer pillCount, String dosage, String notes)
+                    allTimes.put(c.getInt(2), c.getInt(3));
+                }while(c.moveToNext());
+            } catch (Exception e) {}
+        }
+        db.close();
+        return allTimes;
+    }
     public Vector<Integer> getAllTimes(Pill pill){
         SQLiteDatabase db = this.getReadableDatabase();
         String insertStm = "SELECT * FROM " + reminderTableName + " WHERE "
@@ -254,8 +275,10 @@ public class dbHelper extends SQLiteOpenHelper {
             } catch (Exception e) {}
         }
         db.close();
+        Collections.sort(allTimes);
         return allTimes;
     }
+
 
     /*public Vector<String> getTakenPills(Pill p, Integer taken){
         SQLiteDatabase db = this.getReadableDatabase();
@@ -328,5 +351,54 @@ public class dbHelper extends SQLiteOpenHelper {
         }
         db.close();
         return placeholder;
+    }
+    public String getPillNotes(String s){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getPillStm = "SELECT * FROM " + medicineTableName + " WHERE "
+                + keyName + " = '" + s + "'";
+        Cursor c = db.rawQuery(getPillStm, null);
+        if( c != null){
+            c.moveToFirst();
+        }
+        //ID, name, active, pillcount , doseage, notes
+        Pill pillReturn = new Pill(
+                c.getInt(0)
+                , c.getString(1)
+                , Integer.parseInt(c.getString(2))
+                , c.getInt(3)
+                , c.getString(4)
+                , c.getString(5));
+        db.close();
+        return pillReturn.getNotes();
+    }
+    public boolean hasTime(Pill p, int i){
+        Boolean inDb = false; //boolean to display if pill is in DB
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getPillStm = "SELECT * FROM " + reminderTableName + " WHERE "
+                + keyId + " = '" + p.getId() + "'" + " AND " +
+                keyRemindTime + " = " + i;
+        Cursor c = db.rawQuery(getPillStm, null);
+        if( c != null){
+            c.moveToFirst();
+        }
+        if (c.getInt(0) > 0)
+        {
+            db.close();
+            return true;
+        }
+        else
+        {
+            db.close();
+            return false;
+        }
+    }
+    public void updateTaken(Pill pill, int time, int taken){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String updateStm = "UPDATE " + reminderTableName + " SET "
+                + keyTaken  + " = " + taken
+                + " WHERE " + keyIdTable + " = '" + pill.getId() +
+                "' AND " + keyRemindTime + " = '" + time + "'";
+        db.execSQL(updateStm);
+        db.close();
     }
 }

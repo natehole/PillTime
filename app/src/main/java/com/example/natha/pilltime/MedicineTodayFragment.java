@@ -71,20 +71,22 @@ public class MedicineTodayFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 startAlert(taken.getItem(position));
+                final String pillS = taken.getItem(position);
+                final String[] extraPillInfo = pillS.split("\n");
+                final String name = extraPillInfo[0].substring(5, extraPillInfo[0].length());
+                String message = "Notes: " + db.getPillNotes(name);
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Did you take your medication?")
-                        .setMessage("Please select taken if you have taken your medication, or cancel if you havnt")
+                        .setMessage("message")
                         .setPositiveButton("undo taken?", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                String pillS = taken.getItem(position);
-                                String[] extraPillInfo = pillS.split("\n");
-                                String st2 = extraPillInfo[0].substring(5, extraPillInfo[0].length());
                                 String time = extraPillInfo[2].substring(5, extraPillInfo[2].length());
                                 int timeI = unFormatTime(time); //integer to hold the time unformatted
-                                Pill p = db.getPillByName(st2);
+                                Pill p = db.getPillByName(name);
                                 p.setTimeTake(timeI, 0);
                                 p.setPillCount(p.getPillCount() + 1);
+                                db.updateTaken(p, timeI, 0);
                                 db.updatePill(p);
                                 taken.remove(pillS);
                                 notTaken.add(pillS);
@@ -105,26 +107,28 @@ public class MedicineTodayFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 startAlert(notTaken.getItem(position));
+                final String pillS = notTaken.getItem(position);
+                final String[] extraPillInfo = pillS.split("\n");
+                final String name = extraPillInfo[0].substring(5, extraPillInfo[0].length());
+                String message = "Notes: " + db.getPillNotes(name);
                     new AlertDialog.Builder(getActivity())
                             .setTitle("Did you take your medication?")
-                            .setMessage("Please select taken if you have taken your medication, or cancel if you havnt")
+                            .setMessage(message)
                             .setPositiveButton("Taken?", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     String pillS = notTaken.getItem(position);
-                                    String[] extraPillInfo = pillS.split("\n");
-                                    String st2 = extraPillInfo[0].substring(5, extraPillInfo[0].length()); //gets rid of name: and time:xx:yy = xxyy
                                     String time = extraPillInfo[2].substring(5, extraPillInfo[2].length());
                                     int timeI = unFormatTime(time); //integer to hold the time unformatted
-                                    Pill p = db.getPillByName(st2);
+                                    Pill p = db.getPillByName(name  );
                                     p.setTimeTake(timeI, 1);
                                     p.setPillCount(p.getPillCount() - 1);
                                     db.updatePill(p);
+                                    db.updateTaken(p, timeI, 1);
+                                    db.testTimes();
                                     notTaken.remove(pillS);
                                     taken.add(pillS);
-                                   // notTakenPills = sortTimes(notTaken);
                                     notTaken.notifyDataSetChanged();
-
                                     taken.notifyDataSetChanged();
                                 }
                             })
@@ -136,6 +140,7 @@ public class MedicineTodayFragment extends Fragment {
                             .setNeutralButton("Close", null).show();
             }
         });
+        db.close();
         return todayView;
     }
 
