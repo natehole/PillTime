@@ -50,9 +50,9 @@ public class EditMedicationActivity extends Activity {
             if (!intentExtraPill.isEmpty()){
                 String[] extraPillInfo = intentExtraPill.split("\n");
                 dbHelper db = new dbHelper(this);
-                db.close();
                 currentPill = db.getPillByName(extraPillInfo[0]);
                 Vector<Integer> currentPillTimes = db.getAllTimes(currentPill);
+                db.close();
                 for (Integer time : currentPillTimes){
                     times.add(time.toString());
                 }

@@ -156,7 +156,6 @@ public class dbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String getPillStm = "SELECT * FROM " + medicineTableName + " WHERE "
                 + keyName + " = '" + s + "'";
-        db.execSQL(getPillStm);
         Cursor c = db.rawQuery(getPillStm, null);
         if( c != null){
             c.moveToFirst();
