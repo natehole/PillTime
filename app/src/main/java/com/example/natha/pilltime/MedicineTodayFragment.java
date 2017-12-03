@@ -1,10 +1,7 @@
 package com.example.natha.pilltime;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,21 +31,32 @@ public class MedicineTodayFragment extends Fragment {
         //For each pill that is marked active, search through the times listed to take it and for each time listed
         //Add the pill the taken Pills or not taken pills
         //This list will have duplicates of  pills, one for each time slot
+
         for(Pill p : activePills) {
-            Iterator it = p.getTimeTaken().entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry pair = (Map.Entry)it.next();
-                if(pair.getValue() == "1"){
-                    String out = p.getName() + '\n' + p.getDosage()  + "\n" + pair.getKey();
-                    takenPills.add(out);
-                } else {
-                    String out = p.getName() + '\n' + p.getDosage()  + "\n" + pair.getKey();
-                    notTakenPills.add(out);
+            if(p.getActive() == 1) {
+                Iterator it = p.getTimeTaken().entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry pair = (Map.Entry) it.next();
+                    if (pair.getValue() == "1") {
+                        int i = (int) pair.getKey();
+                        String time = formatTime(i);
+                        String out = "Name:" +  p.getName() + '\n'
+                                + "Dosage:" + p.getDosage() + "\n"
+                                + "time:" + time;
+                        takenPills.add(out);
+                    } else {
+                        int i = (int) pair.getKey();
+                        String time = formatTime(i);
+                        String out = "Name:" +  p.getName() + '\n'
+                                + "Dosage:" + p.getDosage() + "\n"
+                                + "time:" + time;
+
+                        notTakenPills.add(out);
+                    }
+                    it.remove();
                 }
-                it.remove();
             }
         }
-
         final ArrayAdapter<String> taken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, takenPills);
         final ArrayAdapter<String> notTaken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, notTakenPills);
 
@@ -72,7 +80,6 @@ public class MedicineTodayFragment extends Fragment {
                 startAlert(notTaken.getItem(position));
             }
         });
-
         return todayView;
     }
 
@@ -80,6 +87,15 @@ public class MedicineTodayFragment extends Fragment {
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
         String dataArray[] = data.split("\n");
         alertDialog.setTitle(dataArray[0]);
+    }
+    public String formatTime(int i){
+        String times = "";
+        if (i%100 < 10) {
+            times += (i - i % 100) / 100 + ":" + "0" + (i%100) + "\n";
+        }
+        else{
+            times += (i - i % 100) / 100 + ":" + (i%100) +"\n";}
+        return times;
     }
 
 }

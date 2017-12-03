@@ -1,7 +1,6 @@
 package com.example.natha.pilltime;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Vector;
@@ -72,7 +70,6 @@ public class EditMedicationActivity extends Activity {
         etDosage = (EditText) findViewById(R.id.dosageET);
         etNotes = (EditText) findViewById(R.id.notesET);
         lvTimes = (ListView) findViewById(R.id.timesLV);
-        //time_picker= (TimePicker) findViewById(R.id.timePicker);
 
     }
 
@@ -80,7 +77,6 @@ public class EditMedicationActivity extends Activity {
         dbHelper db = new dbHelper(this);
         String name = etName.getText().toString();
         int active = 0;
-
         if(cbActive.isChecked()){
             active = 1;
         }
@@ -132,9 +128,9 @@ public class EditMedicationActivity extends Activity {
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 currentPillTime = hourOfDay * 100 + minute;
                 currentPill.getAllTimesS().add(currentTime.toString());
-
-                arrayAdapter.add(currentTime.toString());
+                arrayAdapter.add(String.valueOf(currentPillTime));
                 arrayAdapter.notifyDataSetChanged();
+
             }
         };
 
@@ -149,6 +145,12 @@ public class EditMedicationActivity extends Activity {
             etName.setText(currentPill.getName());
             etDosage.setText(currentPill.getDosage());
             etNotes.setText(currentPill.getNotes());
+            if(currentPill.getActive() == 1){
+                cbActive.setChecked(true);
+            }
+            else{
+                cbActive.setChecked(false);
+            }
             etPillCount.setText(currentPill.getPillCount().toString());
             arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, times);
         }
@@ -158,7 +160,7 @@ public class EditMedicationActivity extends Activity {
             etDosage.setText("");
             etNotes.setText("");
             etPillCount.setText("");
-            arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, new String[]{""});
+            arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, times   );
         }
         lvTimes.setAdapter(arrayAdapter);
     }

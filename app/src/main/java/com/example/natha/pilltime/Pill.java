@@ -26,7 +26,7 @@ public class Pill extends Activity{
     public Pill(int id, String name, int active, int pillCount, String dosage, String notes) {
         this.Id = id;
         this.name = name;
-        Active = active;
+        this.Active = active;
         this.pillCount = pillCount;
         this.dosage = dosage;
         this.notes = notes;
@@ -39,7 +39,7 @@ public class Pill extends Activity{
     public int getActive()
     {
         //1 = true, 0 = false
-        return  Active;
+        return  this.Active;
     }
     public Integer getPillCount() {
         return pillCount;

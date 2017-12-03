@@ -4,10 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.graphics.drawable.VectorDrawableCompat;
-import android.widget.Toast;
 
-import java.util.List;
 import java.util.Vector;
 
 /**
@@ -119,12 +116,14 @@ public class dbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String deleteStm = "DELETE FROM " + medicineTableName + " WHERE "
                 +keyName + " = '" + pill.getName() + "'";
+        db.execSQL(deleteStm);
+        db.close();
     }
     public void updatePill(Pill pill){ //updates pill
         SQLiteDatabase db = this.getWritableDatabase();
         String updateStm = "UPDATE " + medicineTableName + " SET "
                 + keyName + " = '" + pill.getName() + "' , "
-                + keyActive+ " = '" + pill.getActive() + "' , "
+                + keyActive+ " = " + pill.getActive() + " , "
                 + keyPill_Count + " = '" + pill.getPillCount() + "' , "
                 + keyDosage + " = '" + pill.getDosage() + "' , "
                 + keyNotes   + " = '" + pill.getNotes() + "' "
