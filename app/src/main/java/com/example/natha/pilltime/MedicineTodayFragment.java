@@ -12,8 +12,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
@@ -29,7 +27,7 @@ public class MedicineTodayFragment extends Fragment {
         Vector<Pill> activePills = db.getActivePills();
 
         Vector<String> takenPills = new Vector<String>();
-        final Vector<String> notTakenPills = new Vector<String>();
+        Vector<String> notTakenPills = new Vector<String>();
 
         //For each pill that is marked active, search through the times listed to take it and for each time listed
         //Add the pill the taken Pills or not taken pills
@@ -59,16 +57,12 @@ public class MedicineTodayFragment extends Fragment {
                 }
             }
         }
-
         final ArrayAdapter<String> taken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, takenPills);
         final ArrayAdapter<String> notTaken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, notTakenPills);
 
         View todayView = inflater.inflate(R.layout.today_fragment, container, false);
         ListView medicinesTaken = (ListView) todayView.findViewById(R.id.takenLV);
         ListView medicinesNotTaken = (ListView) todayView.findViewById(R.id.notTakenLV);
-
-        sortMedication(taken);
-        sortMedication(notTaken);
 
         medicinesTaken.setAdapter(taken);
         medicinesNotTaken.setAdapter(notTaken);
@@ -77,20 +71,22 @@ public class MedicineTodayFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 startAlert(taken.getItem(position));
+                final String pillS = taken.getItem(position);
+                final String[] extraPillInfo = pillS.split("\n");
+                final String name = extraPillInfo[0].substring(5, extraPillInfo[0].length());
+                String message = "Notes: " + db.getPillNotes(name);
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Did you take your medication?")
-                        .setMessage("Please select taken if you have taken your medication, or cancel if you havnt")
+                        .setMessage("message")
                         .setPositiveButton("undo taken?", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                String pillS = taken.getItem(position);
-                                String[] extraPillInfo = pillS.split("\n");
-                                String st2 = extraPillInfo[0].substring(5, extraPillInfo[0].length());
                                 String time = extraPillInfo[2].substring(5, extraPillInfo[2].length());
                                 int timeI = unFormatTime(time); //integer to hold the time unformatted
-                                Pill p = db.getPillByName(st2);
+                                Pill p = db.getPillByName(name);
                                 p.setTimeTake(timeI, 0);
                                 p.setPillCount(p.getPillCount() + 1);
+                                db.updateTaken(p, timeI, 0);
                                 db.updatePill(p);
                                 taken.remove(pillS);
                                 notTaken.add(pillS);
@@ -111,26 +107,28 @@ public class MedicineTodayFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 startAlert(notTaken.getItem(position));
+                final String pillS = notTaken.getItem(position);
+                final String[] extraPillInfo = pillS.split("\n");
+                final String name = extraPillInfo[0].substring(5, extraPillInfo[0].length());
+                String message = "Notes: " + db.getPillNotes(name);
                     new AlertDialog.Builder(getActivity())
                             .setTitle("Did you take your medication?")
-                            .setMessage("Please select taken if you have taken your medication, or cancel if you havnt")
+                            .setMessage(message)
                             .setPositiveButton("Taken?", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     String pillS = notTaken.getItem(position);
-                                    String[] extraPillInfo = pillS.split("\n");
-                                    String st2 = extraPillInfo[0].substring(5, extraPillInfo[0].length()); //gets rid of name: and time:xx:yy = xxyy
                                     String time = extraPillInfo[2].substring(5, extraPillInfo[2].length());
                                     int timeI = unFormatTime(time); //integer to hold the time unformatted
-                                    Pill p = db.getPillByName(st2);
+                                    Pill p = db.getPillByName(name  );
                                     p.setTimeTake(timeI, 1);
                                     p.setPillCount(p.getPillCount() - 1);
                                     db.updatePill(p);
+                                    db.updateTaken(p, timeI, 1);
+                                    db.testTimes();
                                     notTaken.remove(pillS);
                                     taken.add(pillS);
-                                   // notTakenPills = sortTimes(notTaken);
                                     notTaken.notifyDataSetChanged();
-
                                     taken.notifyDataSetChanged();
                                 }
                             })
@@ -142,6 +140,7 @@ public class MedicineTodayFragment extends Fragment {
                             .setNeutralButton("Close", null).show();
             }
         });
+        db.close();
         return todayView;
     }
 
@@ -152,15 +151,7 @@ public class MedicineTodayFragment extends Fragment {
     }
     public String formatTime(int i){
         String times = "";
-        if(i < 60) {
-            if(i < 10) {
-                times += ("00:0"+i + "\n");
-            }
-            else{
-                times += ("00:" + i) + "\n";
-            }
-        }
-        else if (i%100 < 10) {
+        if (i%100 < 10) {
             times += (i - i % 100) / 100 + ":" + "0" + (i%100) + "\n";
         }
         else{
@@ -174,28 +165,6 @@ public class MedicineTodayFragment extends Fragment {
         int rawTime = hour + minute;
         return rawTime;
     }
-
-    public void sortMedication(ArrayAdapter<String> arrayAdapter){
-        arrayAdapter.sort(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                String []arrayO1 = o1.split("\n");
-                String []arrayO2 = o2.split("\n");
-
-                Integer rawO1Time = unFormatTime(arrayO1[2].substring(5));
-                Integer rawO2Time = unFormatTime(arrayO2[2].substring(5));
-
-                if (rawO1Time < rawO2Time) {
-                    return -1;
-                }
-                else{
-                    return 1;
-                }
-
-            }
-        });
-    }
-
  /*   public Vector<String> sortTimes(ArrayL<String> pills){ //pill = taken/nottaken
         int[] times = new int[pills.size()];
         String[] names = new String[pills.size()];
