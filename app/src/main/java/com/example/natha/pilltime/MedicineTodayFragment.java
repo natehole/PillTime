@@ -12,6 +12,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
@@ -37,8 +38,12 @@ public class MedicineTodayFragment extends Fragment {
                 Iterator it = p.getTimeTaken().entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry) it.next();
+<<<<<<< HEAD
 
                     if (pair.getValue().equals("1")) {
+=======
+                    if (pair.getValue().equals(1)) {
+>>>>>>> 57a6515b4ab40c989d43ce44ecbf3421b57ceb65
                         int i = (int) pair.getKey();
                         String time = formatTime(i);
                         String out = "Name:" +  p.getName() + '\n'
@@ -86,10 +91,16 @@ public class MedicineTodayFragment extends Fragment {
                                 Pill p = db.getPillByName(name);
                                 p.setTimeTake(timeI, 0);
                                 p.setPillCount(p.getPillCount() + 1);
+
                                 db.updateTaken(p, timeI, 0);
                                 db.updatePill(p);
+
                                 taken.remove(pillS);
                                 notTaken.add(pillS);
+
+                                sortMedication(notTaken);
+                                sortMedication(taken);
+
                                 notTaken.notifyDataSetChanged();
                                 taken.notifyDataSetChanged();
                             }
@@ -127,6 +138,10 @@ public class MedicineTodayFragment extends Fragment {
                                     db.testTimes();
                                     notTaken.remove(pillS);
                                     taken.add(pillS);
+
+                                    sortMedication(taken);
+                                    sortMedication(notTaken);
+
                                     notTaken.notifyDataSetChanged();
                                     taken.notifyDataSetChanged();
                                 }
@@ -150,7 +165,15 @@ public class MedicineTodayFragment extends Fragment {
     }
     public String formatTime(int i){
         String times = "";
-        if (i%100 < 10) {
+        if(i < 60) {
+            if(i < 10) {
+                times += ("00:0"+i + "\n");
+            }
+            else{
+                times += ("00:" + i) + "\n";
+            }
+        }
+        else if (i%100 < 10) {
             times += (i - i % 100) / 100 + ":" + "0" + (i%100) + "\n";
         }
         else{
@@ -164,6 +187,28 @@ public class MedicineTodayFragment extends Fragment {
         int rawTime = hour + minute;
         return rawTime;
     }
+
+    public void sortMedication(ArrayAdapter<String> arrayAdapter){
+        arrayAdapter.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                String []arrayO1 = o1.split("\n");
+                String []arrayO2 = o2.split("\n");
+
+                Integer rawO1Time = unFormatTime(arrayO1[2].substring(5));
+                Integer rawO2Time = unFormatTime(arrayO2[2].substring(5));
+
+                if (rawO1Time < rawO2Time) {
+                    return -1;
+                }
+                else{
+                    return 1;
+                }
+
+            }
+        });
+    }
+
  /*   public Vector<String> sortTimes(ArrayL<String> pills){ //pill = taken/nottaken
         int[] times = new int[pills.size()];
         String[] names = new String[pills.size()];
