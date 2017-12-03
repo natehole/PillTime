@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.Vector;
@@ -29,6 +30,7 @@ public class dbHelper extends SQLiteOpenHelper {
     private static final String keyNotes = "notes";
 
     //table two value
+    private static final String keyIdTable = medicineTableName + "_" + keyId;
     private static final String keyIdR = "_idr"; //primary key for table 2
     private static final String keyRemindTime = "remind_time";
     private static final String keyTaken = "taken";
@@ -42,7 +44,7 @@ public class dbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String createMedicineTable = "CREATE TABLE " + medicineTableName + " ("
-                + keyId + " INTERGER PRIMARY KEY, "
+                + keyId + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + keyName + " TEXT NOT NULL, "
                 + keyActive + " TEXT, "
                 + keyPill_Count  + " INTEGER, "
@@ -50,9 +52,9 @@ public class dbHelper extends SQLiteOpenHelper {
                 + keyNotes  + " TEXT)";
 
         String createReminderTable = "CREATE TABLE " + reminderTableName + " ("
-                + keyIdR + " INTERGER PRIMARY KEY, "
-                + medicineTableName + "_" + keyId + " INTEGER, "
-                + keyRemindTime + " TEXT, "
+                + keyIdR + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + keyIdTable +  " INTEGER, "
+                + keyRemindTime + " INTEGER, "
                 + keyTaken + " TEXT)";
         db.execSQL(createMedicineTable);
         db.execSQL(createReminderTable);
@@ -66,7 +68,6 @@ public class dbHelper extends SQLiteOpenHelper {
     }
     //pill object
     public void addPill(Pill pill){
-
         SQLiteDatabase db = this.getWritableDatabase();
         String insertStm = "INSERT INTO " + medicineTableName + " (" +
                 keyName + ","
@@ -83,20 +84,37 @@ public class dbHelper extends SQLiteOpenHelper {
         db.execSQL(insertStm);
         db.close();
     }
-
     public void addTime(Pill pill, int time){
         pill.getTimeTaken().put(time, 0);
         SQLiteDatabase db = this.getWritableDatabase();
         String insertStm = "INSERT INTO " + reminderTableName + " (" +
-                keyId + ","
+                keyIdTable + ","
                 + keyRemindTime  + ","
                 + keyTaken + ")"
-                + " VALUES( '"
-                + pill.getId()  + "' , '"
-                + time + "' "
+                + " VALUES( "
+                + pill.getId()  + " , '"
+                + time + "', "
                 + "0)";
         db.execSQL(insertStm);
         db.close();
+    }
+    public int getPillId(Pill pill){
+        SQLiteDatabase db = this.getReadableDatabase();
+        int id = 0;
+        String getStm = "SELECT * FROM " + medicineTableName + " WHERE "
+                + keyName + " = '" + pill.getName() + "'";
+        Cursor c = db.rawQuery(getStm, null);
+        if( c != null){
+            try {
+                c.moveToFirst();
+                do {
+                    id = c.getInt(0);
+                }while(c.moveToNext());
+            } catch (Exception e) {}
+        }
+        db.close();
+        return id;
+
     }
     public void removePill(Pill pill){ // removes the pill
         SQLiteDatabase db = this.getWritableDatabase();
@@ -143,14 +161,11 @@ public class dbHelper extends SQLiteOpenHelper {
         if( c != null){
             c.moveToFirst();
         }
-
     }
-
     public Vector<Pill> getActivePills(){
         SQLiteDatabase db = this.getReadableDatabase();
         String getActiveStm = "SELECT * FROM " + medicineTableName + " WHERE "
                 + keyActive + " = 1";
-
         Cursor c = db.rawQuery(getActiveStm, null);
         Vector<Pill> activePills = new Vector<Pill>();
         if( c != null){
@@ -168,9 +183,9 @@ public class dbHelper extends SQLiteOpenHelper {
                 }while(c.moveToNext());
             } catch (Exception e) {}
         }
+        db.close();
         return activePills;
     }
-
     public Vector<Pill> getAllPills(){
         SQLiteDatabase db = this.getReadableDatabase();
         String insertStm = "SELECT * FROM "+ medicineTableName;
@@ -191,8 +206,26 @@ public class dbHelper extends SQLiteOpenHelper {
                 }while(c.moveToNext());
             } catch (Exception e) {}
         }
+        db.close();
         return allPills;
-
+    }
+    public Vector<Integer> getAllTimes(Pill pill){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String insertStm = "SELECT * FROM " + reminderTableName + " WHERE "
+                + keyIdTable + " = " + pill.getId();
+        Cursor c = db.rawQuery(insertStm, null);
+        Vector<Integer> allTimes = new Vector<Integer>();
+        if( c != null){
+            try {
+                c.moveToFirst();
+                do {
+                    //Pill(int id, String name, int active, int pillCount, String dosage, String notes)
+                    allTimes.add(c.getInt(2));
+                }while(c.moveToNext());
+            } catch (Exception e) {}
+        }
+        db.close();
+        return allTimes;
     }
 
     /*public Vector<String> getTakenPills(Pill p, int taken){
@@ -220,4 +253,27 @@ public class dbHelper extends SQLiteOpenHelper {
         return takenPills;
     }*/
 
+    public int testTimes(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String insertStm = "SELECT * FROM " + reminderTableName;
+        Cursor c = db.rawQuery(insertStm, null);
+        int placeholder = 0;
+        int placeholder2 = 0;
+        int placeholder3 = 0;
+        int placeholder4 = 0;
+        if( c != null){
+            try {
+                c.moveToFirst();
+                do {
+                    placeholder2 = c.getInt(1);
+                    placeholder3 = c.getInt(2);
+                    placeholder4 = c.getInt(3);
+                    placeholder = c.getInt(0);
+
+                }while(c.moveToNext());
+            } catch (Exception e) {}
+        }
+        db.close();
+        return placeholder;
+    }
 }

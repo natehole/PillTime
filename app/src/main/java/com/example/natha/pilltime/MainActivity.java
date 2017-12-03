@@ -23,9 +23,11 @@ public class MainActivity extends Activity {
 
     private Fragment todayFragment;
     private Fragment medListFragment;
+    public String extraIntentPill;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        extraIntentPill = getIntent().getStringExtra("pill");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         /*if(savedInstanceState == null){
@@ -52,7 +54,7 @@ public class MainActivity extends Activity {
     public void addNewMedication(View view){
         //pass intent to new page edit_medication_activity
         Intent editMedication = new Intent(MainActivity.this, EditMedicationActivity.class);
-        editMedication.putExtra("name","");
+        editMedication.putExtra("pill","");
         startActivity(editMedication);
     }
 

@@ -10,30 +10,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/saveBTN"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="insertToDb"
-            android:text="Save"
-            android:textAllCaps="false" />
-
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
+            android:layout_span="2">
             <Button
-                android:id="@+id/button3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
+                android:id="@+id/saveBTN"
+                android:layout_width="100dp"
+                android:layout_height="60dp"
+                android:onClick="insertToDb"
+                android:text="Save"
+                android:textAllCaps="false"
+                android:layout_marginLeft="141dp"
+                android:layout_marginStart="141dp"
                 android:layout_alignParentTop="true"
-                android:layout_marginLeft="24dp"
-                android:layout_marginStart="24dp"
-                android:onClick="test"
-                android:text="Button" />
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
         </RelativeLayout>
+
 
     </TableRow>
 
@@ -155,41 +147,48 @@
     </TableRow>
 
     <TableRow
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/timesTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="40dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             android:text="Times:"
             android:textColor="@android:color/black"
             android:textSize="18sp" />
 
+        <Button
+            android:id="@+id/addTimeBTN"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="107dp"
+            android:layout_marginRight="107dp"
+            android:layout_marginTop="20dp"
+            android:onClick="addNewTime"
+            android:text="Add Time" />
+
     </TableRow>
 
     <TableRow
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TimePicker
-            android:id="@+id/timePicker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </TableRow>
-
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="300dp">
 
         <ListView
             android:id="@+id/timesLV"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_span="2"/>
     </TableRow>
 
 

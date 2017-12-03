@@ -78,7 +78,7 @@ public class MedicineTodayFragment extends Fragment {
 
     public void startAlert(String data){
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
-        String dataArray[] = data.split(['\n']);
+        String dataArray[] = data.split("\n");
         alertDialog.setTitle(dataArray[0]);
     }
 

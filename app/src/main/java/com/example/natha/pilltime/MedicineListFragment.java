@@ -24,16 +24,28 @@ public class MedicineListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         dbHelper db = new dbHelper(getActivity().getApplicationContext());
         View medListView = inflater.inflate(R.layout.medlist_fragment, container, false);
-        final ListView medicines = (ListView) medListView.findViewById(R.id.medicationLV);
+        ListView medicines = (ListView) medListView.findViewById(R.id.medicationLV);
         Vector<Pill> allPills = db.getAllPills();
+
+
+        try {
+            String intentExtraPill = getActivity().getIntent().getExtras().getString("pill");
+            String[] splitString = intentExtraPill.split("\n");
+            System.out.println("fuck");
+        }catch (Exception e) {}
 
         Vector<String> allMeds = new Vector<>();
 
         for(Pill p : allPills) {
+            Vector<Integer> allTimes = db.getAllTimes(p);
+            String times = "";
+            for(Integer i : allTimes){ // i = time
+                times += i + "\n";
+            }
             allMeds.add(p.getName() + '\n' +
                     p.getDosage() + '\n' +
                     p.getActive() + '\n' +
-                    p.getTimeTaken() + '\n' +
+                    times +
                     p.getNotes());
         }
 
@@ -45,7 +57,7 @@ public class MedicineListFragment extends Fragment {
         medicines.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-                editIntent.putExtra("name", meds.getItem(position));
+                editIntent.putExtra("pill", meds.getItem(position));
                 startActivity(editIntent);
             }
         });

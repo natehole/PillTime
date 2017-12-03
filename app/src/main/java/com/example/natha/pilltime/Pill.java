@@ -21,6 +21,8 @@ public class Pill extends Activity{
     // Key is Time i.e. 700 is 7am,
     // Value is 0 or 1 for false or true as in the medication to take at that time has been taken or has not been taken
 
+    public Pill() {}
+
     public Pill(int id, String name, int active, int pillCount, String dosage, String notes) {
         this.Id = id;
         this.name = name;
@@ -86,5 +88,12 @@ public class Pill extends Activity{
 
     public void setId(int id) {
         Id = id;
+    }
+    public String getAllTimesS(){
+        String allTimes = "";
+        for (int key: timeTaken.keySet()) {
+            allTimes+= key + "\n";
+        }
+        return allTimes;
     }
 }
