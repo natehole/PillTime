@@ -87,10 +87,16 @@ public class MedicineTodayFragment extends Fragment {
                                 Pill p = db.getPillByName(name);
                                 p.setTimeTake(timeI, 0);
                                 p.setPillCount(p.getPillCount() + 1);
+
                                 db.updateTaken(p, timeI, 0);
                                 db.updatePill(p);
+
                                 taken.remove(pillS);
                                 notTaken.add(pillS);
+
+                                sortMedication(notTaken);
+                                sortMedication(taken);
+
                                 notTaken.notifyDataSetChanged();
                                 taken.notifyDataSetChanged();
                             }
@@ -129,6 +135,10 @@ public class MedicineTodayFragment extends Fragment {
                                     db.testTimes();
                                     notTaken.remove(pillS);
                                     taken.add(pillS);
+
+                                    sortMedication(taken);
+                                    sortMedication(notTaken);
+
                                     notTaken.notifyDataSetChanged();
                                     taken.notifyDataSetChanged();
                                 }
