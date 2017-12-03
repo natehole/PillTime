@@ -38,7 +38,7 @@ public class MedicineTodayFragment extends Fragment {
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry) it.next();
 
-                    if (pair.getValue() == "1") {
+                    if (pair.getValue().equals("1")) {
                         int i = (int) pair.getKey();
                         String time = formatTime(i);
                         String out = "Name:" +  p.getName() + '\n'
