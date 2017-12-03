@@ -33,17 +33,13 @@ public class MedicineTodayFragment extends Fragment {
         //For each pill that is marked active, search through the times listed to take it and for each time listed
         //Add the pill the taken Pills or not taken pills
         //This list will have duplicates of  pills, one for each time slot
+
         for(Pill p : activePills) {
             if(p.getActive() == 1) {
                 Iterator it = p.getTimeTaken().entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry) it.next();
-<<<<<<< HEAD
-
-                    if (pair.getValue().equals("1")) {
-=======
                     if (pair.getValue().equals(1)) {
->>>>>>> 57a6515b4ab40c989d43ce44ecbf3421b57ceb65
                         int i = (int) pair.getKey();
                         String time = formatTime(i);
                         String out = "Name:" +  p.getName() + '\n'
@@ -113,6 +109,7 @@ public class MedicineTodayFragment extends Fragment {
                         .setNeutralButton("Close", null).show();
             }
         });
+
         medicinesNotTaken.setOnItemClickListener(new OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
