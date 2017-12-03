@@ -12,6 +12,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
@@ -27,7 +28,7 @@ public class MedicineTodayFragment extends Fragment {
         Vector<Pill> activePills = db.getActivePills();
 
         Vector<String> takenPills = new Vector<String>();
-        Vector<String> notTakenPills = new Vector<String>();
+        final Vector<String> notTakenPills = new Vector<String>();
 
         //For each pill that is marked active, search through the times listed to take it and for each time listed
         //Add the pill the taken Pills or not taken pills
@@ -57,6 +58,7 @@ public class MedicineTodayFragment extends Fragment {
                 }
             }
         }
+
         final ArrayAdapter<String> taken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, takenPills);
         final ArrayAdapter<String> notTaken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, notTakenPills);
 
