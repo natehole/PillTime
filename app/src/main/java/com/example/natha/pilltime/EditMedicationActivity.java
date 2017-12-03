@@ -137,7 +137,6 @@ public class EditMedicationActivity extends Activity {
                 //currentPill.getAllTimesS().add(currentPillTime.toString());
                 arrayAdapter.add(String.valueOf(currentPillTime));
                 arrayAdapter.notifyDataSetChanged();
-
             }
         };
 

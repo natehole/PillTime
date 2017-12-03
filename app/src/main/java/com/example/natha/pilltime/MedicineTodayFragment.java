@@ -154,10 +154,10 @@ public class MedicineTodayFragment extends Fragment {
         String times = "";
         if(i < 60) {
             if(i < 10) {
-                times += ("0:0"+i + "\n");
+                times += ("00:0"+i + "\n");
             }
             else{
-                times += ("0:" + i) + "\n";
+                times += ("00:" + i) + "\n";
             }
         }
         else if (i%100 < 10) {
