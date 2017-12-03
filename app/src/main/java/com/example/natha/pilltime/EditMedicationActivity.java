@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Vector;
@@ -26,7 +27,7 @@ public class EditMedicationActivity extends Activity {
     ArrayAdapter<String> arrayAdapter;
     Pill currentPill;
     String intentExtraPill;
-    private int currentPillTime;
+    private Integer currentPillTime;
     EditText etName;
     CheckBox cbActive;
     EditText etPillCount;
@@ -74,44 +75,53 @@ public class EditMedicationActivity extends Activity {
     }
 
     public void insertToDb(View view){
-        dbHelper db = new dbHelper(this);
-        String name = etName.getText().toString();
-        int active = 0;
-        if(cbActive.isChecked()){
-            active = 1;
-        }
-        else
+
+        if(etName.length() == 0 || etPillCount.length() == 0 || etDosage.length() == 0)
         {
-            active = 0;
+            String errmsg = "You did not input enough data";
+            Toast toast = new Toast(getApplicationContext());
+            toast.makeText(getApplicationContext(), errmsg, Toast.LENGTH_LONG).show();
         }
-        Pill pill = new Pill(
-                0,
-                etName.getText().toString(),
-                active,
-                Integer.parseInt(etPillCount.getText().toString()),
-                etDosage.getText().toString(),
-                etNotes.getText().toString()
-        );
-        if (timeInput){
-            pill.setTimeTake(currentPillTime, 0);
-        }
+        else{
+            dbHelper db = new dbHelper(this);
+            String name = etName.getText().toString();
+            int active = 0;
+            if(cbActive.isChecked()){
+                active = 1;
+            }
+            else
+            {
+                active = 0;
+            }
+            Pill pill = new Pill(
+                    0,
+                    etName.getText().toString(),
+                    active,
+                    Integer.parseInt(etPillCount.getText().toString()),
+                    etDosage.getText().toString(),
+                    etNotes.getText().toString()
+            );
+            if (timeInput){
+                pill.setTimeTake(currentPillTime, 0);
+            }
 
-        if(!db.checkDB(name)){
-            db.addPill(pill);
-            pill.setId(db.getPillId(pill));
-        } else {
-            pill.setId(db.getPillId(pill));
-            db.updatePill(pill);
-        }
-        if (timeInput){
-            db.addTime(pill, currentPillTime);
-        }
+            if(!db.checkDB(name)){
+                db.addPill(pill);
+                pill.setId(db.getPillId(pill));
+            } else {
+                pill.setId(db.getPillId(pill));
+                db.updatePill(pill);
+            }
+            if (timeInput){
+                db.addTime(pill, currentPillTime);
+            }
 
-        timeInput = false;
-        db.close();
+            timeInput = false;
+            db.close();
 
-        Intent mainIntent = new Intent(EditMedicationActivity.this, MainActivity.class);
-        startActivity(mainIntent);
+            Intent mainIntent = new Intent(EditMedicationActivity.this, MainActivity.class);
+            startActivity(mainIntent);
+        }
     }
 
     public void addNewTime(View view){
@@ -120,14 +130,11 @@ public class EditMedicationActivity extends Activity {
         int hour = currentTime.get(Calendar.HOUR_OF_DAY);
         int minute = currentTime.get(Calendar.MINUTE);
 
-        /*AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-        builder.setIcon()*/
-
         TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener(){
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 currentPillTime = hourOfDay * 100 + minute;
-                currentPill.getAllTimesS().add(currentTime.toString());
+                //currentPill.getAllTimesS().add(currentPillTime.toString());
                 arrayAdapter.add(String.valueOf(currentPillTime));
                 arrayAdapter.notifyDataSetChanged();
 

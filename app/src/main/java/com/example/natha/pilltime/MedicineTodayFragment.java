@@ -146,7 +146,15 @@ public class MedicineTodayFragment extends Fragment {
     }
     public String formatTime(int i){
         String times = "";
-        if (i%100 < 10) {
+        if(i < 60) {
+            if(i < 10) {
+                times += ("0:0"+i + "\n");
+            }
+            else{
+                times += ("0:" + i) + "\n";
+            }
+        }
+        else if (i%100 < 10) {
             times += (i - i % 100) / 100 + ":" + "0" + (i%100) + "\n";
         }
         else{
