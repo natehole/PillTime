@@ -122,6 +122,16 @@ public class dbHelper extends SQLiteOpenHelper {
         db.execSQL(deleteStm);
         db.close();
     }
+
+    public void removePillTimeByName(String pillName, int time){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Pill pill = getPillByName(pillName);
+        String deleteStm = "DELETE FROM " + reminderTableName + " WHERE "
+                + keyIdTable + " = " + pill.getId() + " AND " + keyRemindTime + " = " + time;
+        db.execSQL(deleteStm);
+        db.close();
+    }
+
     public void updatePill(Pill pill){ //updates pill
         SQLiteDatabase db = this.getWritableDatabase();
         String updateStm = "UPDATE " + medicineTableName + " SET "

@@ -78,8 +78,8 @@ public class MedicineTodayFragment extends Fragment {
                 String message = "Notes: " + db.getPillNotes(name);
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Did you take your medication?")
-                        .setMessage("message")
-                        .setPositiveButton("undo taken?", new DialogInterface.OnClickListener() {
+                        .setMessage(name)
+                        .setPositiveButton("Untake Pill", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 String time = extraPillInfo[2].substring(5, extraPillInfo[2].length());
@@ -117,11 +117,11 @@ public class MedicineTodayFragment extends Fragment {
                 final String pillS = notTaken.getItem(position);
                 final String[] extraPillInfo = pillS.split("\n");
                 final String name = extraPillInfo[0].substring(5, extraPillInfo[0].length());
-                String message = "Notes: " + db.getPillNotes(name);
+                String message = name + "\n" + "Notes: " + db.getPillNotes(name);
                     new AlertDialog.Builder(getActivity())
                             .setTitle("Did you take your medication?")
                             .setMessage(message)
-                            .setPositiveButton("Taken?", new DialogInterface.OnClickListener() {
+                            .setPositiveButton("Take Pill", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     String pillS = notTaken.getItem(position);
@@ -164,10 +164,10 @@ public class MedicineTodayFragment extends Fragment {
         String times = "";
         if(i < 60) {
             if(i < 10) {
-                times += ("00:0"+i + "\n");
+                times += ("0:0"+i + "\n");
             }
             else{
-                times += ("00:" + i) + "\n";
+                times += ("0:" + i) + "\n";
             }
         }
         else if (i%100 < 10) {
@@ -205,33 +205,4 @@ public class MedicineTodayFragment extends Fragment {
             }
         });
     }
-
- /*   public Vector<String> sortTimes(ArrayL<String> pills){ //pill = taken/nottaken
-        int[] times = new int[pills.size()];
-        String[] names = new String[pills.size()];
-        for(int i=0 ; i<pills.size() ; i++){
-            String rawString = pills.get(i); // get the string for every position
-            String[] splitString = rawString.split("\n");
-            times[i] = unFormatTime(splitString[2]);
-        }
-        int n = times.length;
-        int temp = 0;
-        for(int i=0; i < n; i++){
-            for(int j=1; j < (n-i); j++){
-                if(times[j-1] > times[j]){
-                    //swap elements
-                    temp = times[j-1];
-                    times[j-1] = times[j];
-                    times[j] = temp;
-                    pills.add(j-1,pills.get(j));
-                    pills.add(j, pills.get(j-1));
-                    pills.remove(pills.get(j+1));
-                    pills.remove(pills.get(j+1));
-                }
-            }
-        }
-        return pills;
-    }
-*/
-
 }

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -180,9 +181,35 @@ public class EditMedicationActivity extends Activity {
             etDosage.setText("");
             etNotes.setText("");
             etPillCount.setText("");
-            arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, times   );
+            arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, times);
         }
         lvTimes.setAdapter(arrayAdapter);
+
+        final dbHelper db = new dbHelper(EditMedicationActivity.this);
+
+        lvTimes.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id){
+                new AlertDialog.Builder(EditMedicationActivity.this)
+                        .setTitle("Edit or Delete a Time")
+                        .setMessage("Press edit to edit a time, Delete to delete this time")
+                        .setPositiveButton("Edit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //open the thingyy
+                            }
+                        })
+                        .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                db.removePillTimeByName(etName.getText().toString(), Integer.parseInt(arrayAdapter.getItem(position)));
+                            }
+                        })
+                        .setNeutralButton("Close", null).show();
+
+            }
+        });
+        db.close();
     }
     public void cancel(View view){
         AlertDialog alertDialogBuilder = new AlertDialog.Builder(this)
