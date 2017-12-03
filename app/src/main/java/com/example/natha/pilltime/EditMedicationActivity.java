@@ -31,7 +31,7 @@ public class EditMedicationActivity extends Activity {
     ArrayAdapter<String> arrayAdapter;
     Pill currentPill;
     String intentExtraPill;
-    private int currentPillTime;
+    private Integer currentPillTime;
     EditText etName;
     CheckBox cbActive;
     EditText etPillCount;
@@ -79,6 +79,7 @@ public class EditMedicationActivity extends Activity {
     }
 
     public void insertToDb(View view){
+
         if(etName.length() == 0 || etPillCount.length() == 0 || etDosage.length() == 0)
         {
             String errmsg = "You did not input enough data";
@@ -133,9 +134,6 @@ public class EditMedicationActivity extends Activity {
         final Calendar currentTime = Calendar.getInstance();
         int hour = currentTime.get(Calendar.HOUR_OF_DAY);
         int minute = currentTime.get(Calendar.MINUTE);
-
-        /*AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-        builder.setIcon()*/
 
         TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener(){
             @Override

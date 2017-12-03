@@ -70,4 +70,5 @@ public class MainActivity extends Activity {
             t.remove(fragment);
         }
     }
+
 }
