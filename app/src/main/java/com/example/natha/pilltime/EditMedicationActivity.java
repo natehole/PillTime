@@ -208,7 +208,9 @@ public class EditMedicationActivity extends Activity {
                                             timeVec.add(currentPillTime);
                                             String name = currentPill.getName();
                                             Integer timeVal = Integer.parseInt(arrayAdapter.getItem(position));
-                                            db.removePillTimeByName(name, timeVal);
+                                            if (!(name == null)){
+                                                db.removePillTimeByName(name, timeVal);
+                                            }
                                             arrayAdapter.remove(arrayAdapter.getItem(position));
                                             timeInput = true;
                                             arrayAdapter.add(String.valueOf(currentPillTime));
@@ -230,7 +232,10 @@ public class EditMedicationActivity extends Activity {
                             public void onClick(DialogInterface dialogInterface, int i) {
                                     String name = currentPill.getName();
                                     Integer timeVal = Integer.parseInt(arrayAdapter.getItem(position));
-                                    db.removePillTimeByName(name, timeVal);
+                                    if(!(name == null)){
+                                        db.removePillTimeByName(name, timeVal);
+                                    }
+                                    timeVec.remove(timeVal);
                                     arrayAdapter.remove(arrayAdapter.getItem(position));
                                     arrayAdapter.notifyDataSetChanged();
                                     cancelAlarm(currentPill.getId(), timeVal);
