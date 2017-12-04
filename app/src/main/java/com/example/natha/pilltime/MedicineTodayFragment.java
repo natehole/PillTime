@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Comparator;
@@ -117,6 +118,10 @@ public class MedicineTodayFragment extends Fragment {
                                 notTaken.add(pillS);
                                 sortMedication(notTaken);
                                 sortMedication(taken);
+                                if (p.getPillCount() < 6)
+                                {
+                                    Toast.makeText(getActivity(), "ONLY " + p.getPillCount() +" PILLS LEFT PLEASE REFILL", Toast.LENGTH_LONG).show();
+                                }
                                 notTaken.notifyDataSetChanged();
                                 taken.notifyDataSetChanged();
                             }
@@ -147,6 +152,10 @@ public class MedicineTodayFragment extends Fragment {
                                 p.setPillCount(p.getPillCount() - 1);
                                 db.updatePill(p);
                                 db.updateTaken(p, timeI, 1);
+                                if (p.getPillCount() < 6)
+                                {
+                                    Toast.makeText(getActivity(), "ONLY " + p.getPillCount() +" PILLS LEFT PLEASE REFILL", Toast.LENGTH_LONG).show();
+                                }
                                 //db.testTimes();
 
                                 notTaken.remove(pillS);

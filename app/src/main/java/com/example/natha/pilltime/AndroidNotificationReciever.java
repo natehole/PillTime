@@ -17,7 +17,7 @@ public class AndroidNotificationReciever extends BroadcastReceiver{
     public void onReceive(Context context, Intent intent) {
         medNote = intent.getExtras().getString("meds");
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setAutoCancel(true).setDefaults(Notification.DEFAULT_ALL).setWhen(System.currentTimeMillis()).setSmallIcon(R.mipmap.ic_launcher).setContentTitle("Alarm GOOO")
+        builder.setAutoCancel(true).setDefaults(Notification.DEFAULT_ALL).setWhen(System.currentTimeMillis()).setSmallIcon(R.mipmap.ic_launcher).setContentTitle("Take Medication!")
                 .setContentText("Its time to take your: " + medNote).setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND).setContentInfo("Info");
         NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(1,builder.build());

@@ -49,7 +49,6 @@ public class MedicineListFragment extends Fragment {
                         times += (i - i % 100) / 100 + ":" + (i % 100) + " , ";
                     }
                 }
-
                 times = times.substring(0, times.length() - 2) + "\n";
             }
             String active;

@@ -294,8 +294,6 @@ public class dbHelper extends SQLiteOpenHelper {
         Collections.sort(allTimes);
         return allTimes;
     }
-
-
     /*public Vector<String> getTakenPills(Pill p, Integer taken){
         SQLiteDatabase db = this.getReadableDatabase();
         String getTakenStm = "SELECT * FROM " + reminderTableName + " WHERE "
@@ -320,7 +318,6 @@ public class dbHelper extends SQLiteOpenHelper {
 
         return takenPills;
     }*/
-
     public boolean checkDB(String s) { //s = name
         Boolean inDb = false; //boolean to display if pill is in DB
         SQLiteDatabase db = this.getReadableDatabase();

@@ -135,8 +135,6 @@ public class EditMedicationActivity extends Activity {
             startActivity(mainIntent);
         }
     }
-
-
     public void addNewTime(View view) {
         timeInput = true;
         final Calendar currentTime = Calendar.getInstance();
@@ -215,6 +213,7 @@ public class EditMedicationActivity extends Activity {
                                             timeInput = true;
                                             arrayAdapter.add(String.valueOf(currentPillTime));
                                             arrayAdapter.notifyDataSetChanged();
+                                            cancelAlarm(currentPill.getId(), timeVal);
                                         } else {
                                             Toast.makeText(getApplicationContext(), "Time is already here", Toast.LENGTH_SHORT).show();
                                         }
@@ -234,6 +233,7 @@ public class EditMedicationActivity extends Activity {
                                     db.removePillTimeByName(name, timeVal);
                                     arrayAdapter.remove(arrayAdapter.getItem(position));
                                     arrayAdapter.notifyDataSetChanged();
+                                    cancelAlarm(currentPill.getId(), timeVal);
                             }
                         })
                         .setNeutralButton("Close", null).show();
@@ -273,23 +273,29 @@ public class EditMedicationActivity extends Activity {
 
         int alarmTime = convertTime(timeToTake);
 
-        pendingIntent = PendingIntent.getBroadcast(this,pillId,myIntent,0);
+        int inpMinutes = timeToTake % 100;
+        int inpHrs = (timeToTake - inpMinutes) / 100;
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, inpHrs);
+        calendar.set(Calendar.MINUTE, inpMinutes);
+        calendar.set(Calendar.SECOND, 0);
+        int intentId = pillId + timeToTake;
+        pendingIntent = PendingIntent.getBroadcast(this,intentId,myIntent,0);
         if (isRepeating) {
-            manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,alarmTime,86400000,pendingIntent);
+            manager.setRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),86400000,pendingIntent);
         } else {
             manager.set(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent);
         }
 
 
     }
-    public void cancelAlarm(int pillID)
+    public void cancelAlarm(int pillID, int time)
     {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent myIntent = new Intent(getApplicationContext(),
                 EditMedicationActivity.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this,pillID, myIntent,0);
-
+                this,pillID+time, myIntent,0);
         alarmManager.cancel(pendingIntent);
     }
 
