@@ -13,7 +13,8 @@
         android:text="Taken"
         android:textAlignment="center"
         android:textColor="@android:color/black"
-        android:textSize="32sp" />
+        android:textSize="32sp"
+        android:textStyle="bold" />
 
     <ListView
         android:id="@+id/takenLV"
@@ -28,7 +29,8 @@
         android:text="Not Taken"
         android:textAlignment="center"
         android:textColor="@android:color/black"
-        android:textSize="32sp" />
+        android:textSize="32sp"
+        android:textStyle="bold" />
 
     <ListView
         android:id="@+id/notTakenLV"
