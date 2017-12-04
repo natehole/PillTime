@@ -1,13 +1,17 @@
 package com.example.natha.pilltime;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -25,6 +29,7 @@ import java.util.Vector;
 public class EditMedicationActivity extends Activity {
 
 
+    String nameBeforeChange;
     Vector<Integer> timeVec = new Vector<>();
     boolean timeInput;
     Vector<String> times;
@@ -104,12 +109,20 @@ public class EditMedicationActivity extends Activity {
                     etDosage.getText().toString(),
                     etNotes.getText().toString()
             );
+            currentPill.getName();
             if (timeInput){
                 pill.setTimeTake(currentPillTime, 0);
             }
 
             if(!db.checkDB(name)){
-                db.addPill(pill);
+                if (currentPill.getName() == null)
+                {
+                    db.addPill(pill);
+                }
+                else{
+                    pill.setId(currentPill.getId());
+                    db.updatePill(pill);
+                }
                 pill.setId(db.getPillId(pill));
             } else {
                 pill.setId(db.getPillId(pill));
@@ -118,6 +131,7 @@ public class EditMedicationActivity extends Activity {
             if (timeInput){
                 for (int i: timeVec){
                         db.addTime(pill, i);
+                        setAlarm(pill.getName(), i, true);
                 }
             }
             timeInput = false;
@@ -180,9 +194,38 @@ public class EditMedicationActivity extends Activity {
             etDosage.setText("");
             etNotes.setText("");
             etPillCount.setText("");
-            arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, times   );
+            arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, times);
         }
         lvTimes.setAdapter(arrayAdapter);
+
+        final dbHelper db = new dbHelper(EditMedicationActivity.this);
+
+        lvTimes.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id){
+                new AlertDialog.Builder(EditMedicationActivity.this)
+                        .setTitle("Edit or Delete a Time")
+                        .setMessage("Press edit to edit a time, Delete to delete this time")
+                        .setPositiveButton("Edit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //open the thingyy
+                            }
+                        })
+                        .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String name = currentPill.getName();
+                                Integer timeVal = Integer.parseInt(arrayAdapter.getItem(position));
+                                db.removePillTimeByName(name, timeVal);
+                                arrayAdapter.notifyDataSetChanged();
+                            }
+                        })
+                        .setNeutralButton("Close", null).show();
+
+            }
+        });
+        db.close();
     }
     public void cancel(View view){
         AlertDialog alertDialogBuilder = new AlertDialog.Builder(this)
@@ -200,9 +243,54 @@ public class EditMedicationActivity extends Activity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                     }
                 }).show();
+    }
 
+    public void setAlarm(String pillName, int timeToTake, boolean isRepeating)
+    {
+        AlarmManager manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        Intent myIntent;
+        PendingIntent pendingIntent;
+
+        myIntent = new Intent(EditMedicationActivity.this,AndroidNotificationReciever.class);
+        myIntent.putExtra("meds", pillName);
+        myIntent.setAction("meds" + "meds");
+
+        long alarmTime = convertTime(timeToTake);
+
+        pendingIntent = PendingIntent.getBroadcast(this,0,myIntent,0);
+        if(isRepeating)
+        {
+            manager.setRepeating(AlarmManager.RTC_WAKEUP,alarmTime,86400000,pendingIntent);
+        }
+        else
+        {
+            manager.set(AlarmManager.RTC_WAKEUP, alarmTime,pendingIntent);
+        }
 
 
     }
 
+    public int convertTime(int inpTime)
+    {
+        final Calendar currentTime = Calendar.getInstance();
+        int currhour = currentTime.get(Calendar.HOUR_OF_DAY);
+        int currminute = currentTime.get(Calendar.MINUTE);
+        // int currsecond = currentTime.get(Calendar.SECOND);
+        //int currmills = currentTime.get(Calendar.MILLISECOND);
+
+        currminute = currminute + (currhour * 60);
+        int currsecond = (currminute * 60);
+        int currmills = (currsecond * 1000);
+
+
+        int inpMinutes = inpTime % 100;
+        int inpHrs = (inpTime - inpMinutes) / 100;
+        int inpTotalMinutes = (inpHrs * 60) + inpMinutes;
+        int inpTotalSeconds = inpTotalMinutes * 60;
+        int inpTotalMills = inpTotalSeconds * 1000;
+
+        int returnTime = inpTotalMills - currmills;
+
+        return returnTime;
+    }
 }
