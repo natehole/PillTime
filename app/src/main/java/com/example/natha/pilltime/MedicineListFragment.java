@@ -35,17 +35,33 @@ public class MedicineListFragment extends Fragment {
             Vector<Integer> allTimes = db.getAllTimes(p);
             String times = "";
             for(Integer i : allTimes){ // i = time
-                if (i%100 < 10) {
-                    times += (i - i % 100) / 100 + ":" + "0" + (i%100) + "\n";
+                if(i < 60) {
+                    if(i < 10) {
+                        times += ("0:0"+i + " , ");
+                    }
+                    else{
+                        times += ("0:" + i) + " , ";
+                    }
+                }
+                 else if (i%100 < 10) {
+                    times += (i - i % 100) / 100 + ":" + "0" + (i%100) + " , ";
                 }
                 else{
-                    times += (i - i % 100) / 100 + ":" + (i%100) +"\n";
+                    times += (i - i % 100) / 100 + ":" + (i%100) +" , ";
                 }
-              //  times += i + "\n";
+            }
+            times = times.substring(0, times.length()-2) + "\n";
+
+            String active;
+
+            if (p.getActive() == 1){
+                active = "Active";
+            } else{
+                active = "Not Active";
             }
             allMeds.add(p.getName() + '\n' +
                     p.getDosage() + '\n' +
-                    p.getActive() + '\n' +
+                    active + '\n' +
                     times +
                     p.getNotes());
         }
