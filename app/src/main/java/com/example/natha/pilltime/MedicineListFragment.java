@@ -31,24 +31,27 @@ public class MedicineListFragment extends Fragment {
 
         final Vector<String> allMeds = new Vector<>();
 
+
         for (Pill p : allPills) {
             Vector<Integer> allTimes = db.getAllTimes(p);
             String times = "";
-            for (Integer i : allTimes) { // i = time
-                if (i < 60) {
-                    if (i < 10) {
-                        times += ("0:0" + i + " , ");
+            if (allTimes.size() > 0) {
+                for (Integer i : allTimes) { // i = time
+                    if (i < 60) {
+                        if (i < 10) {
+                            times += ("0:0" + i + " , ");
+                        } else {
+                            times += ("0:" + i) + " , ";
+                        }
+                    } else if (i % 100 < 10) {
+                        times += (i - i % 100) / 100 + ":" + "0" + (i % 100) + " , ";
                     } else {
-                        times += ("0:" + i) + " , ";
+                        times += (i - i % 100) / 100 + ":" + (i % 100) + " , ";
                     }
-                } else if (i % 100 < 10) {
-                    times += (i - i % 100) / 100 + ":" + "0" + (i % 100) + " , ";
-                } else {
-                    times += (i - i % 100) / 100 + ":" + (i % 100) + " , ";
                 }
-            }
-            times = times.substring(0, times.length() - 2) + "\n";
 
+                times = times.substring(0, times.length() - 2) + "\n";
+            }
             String active;
 
             if (p.getActive() == 1) {

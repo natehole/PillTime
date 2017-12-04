@@ -126,7 +126,7 @@ public class EditMedicationActivity extends Activity {
             if (timeInput) {
                 for (int i : timeVec) {
                     db.addTime(pill, i);
-                    setAlarm(pill.getName(), i, true);
+                    setAlarm(pill.getName(), pill.getId(), i, true);
                 }
             }
             timeInput = false;
@@ -198,22 +198,49 @@ public class EditMedicationActivity extends Activity {
                         .setPositiveButton("Edit", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                //open the thingyy
+                                final Calendar currentTime = Calendar.getInstance();
+                                int hour = currentTime.get(Calendar.HOUR_OF_DAY);
+                                int minute = currentTime.get(Calendar.MINUTE);
+                                TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+                                    @Override
+                                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                        currentPillTime = hourOfDay * 100 + minute;
+                                        if (arrayAdapter.getPosition(String.valueOf(currentPillTime)) == -1) {
+                                            currentPill.setTimeTake(currentPillTime, 0);
+                                            timeVec.add(currentPillTime);
+                                            String name = currentPill.getName();
+                                            Integer timeVal = Integer.parseInt(arrayAdapter.getItem(position));
+                                            db.removePillTimeByName(name, timeVal);
+                                            arrayAdapter.remove(arrayAdapter.getItem(position));
+                                            timeInput = true;
+                                            arrayAdapter.add(String.valueOf(currentPillTime));
+                                            arrayAdapter.notifyDataSetChanged();
+                                        } else {
+                                            Toast.makeText(getApplicationContext(), "Time is already here", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                };
+
+                                TimePickerDialog timePickerDialog = new TimePickerDialog(EditMedicationActivity.this, listener, hour, minute, true);
+                                timePickerDialog.setTitle("Select a Time");
+                                timePickerDialog.show();
                             }
                         })
                         .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                String name = currentPill.getName();
-                                Integer timeVal = Integer.parseInt(arrayAdapter.getItem(position));
-                                db.removePillTimeByName(name, timeVal);
-                                arrayAdapter.notifyDataSetChanged();
+                                    String name = currentPill.getName();
+                                    Integer timeVal = Integer.parseInt(arrayAdapter.getItem(position));
+                                    db.removePillTimeByName(name, timeVal);
+                                    arrayAdapter.remove(arrayAdapter.getItem(position));
+                                    arrayAdapter.notifyDataSetChanged();
                             }
                         })
                         .setNeutralButton("Close", null).show();
-
+                arrayAdapter.notifyDataSetChanged();
             }
         });
+        arrayAdapter.notifyDataSetChanged();
         db.close();
     }
 
@@ -235,7 +262,7 @@ public class EditMedicationActivity extends Activity {
                 }).show();
     }
 
-    public void setAlarm(String pillName, int timeToTake, boolean isRepeating) {
+    public void setAlarm(String pillName, int pillId, int timeToTake, boolean isRepeating) {
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent myIntent;
         PendingIntent pendingIntent;
@@ -244,16 +271,26 @@ public class EditMedicationActivity extends Activity {
         myIntent.putExtra("meds", pillName);
         myIntent.setAction("meds" + "meds");
 
-        long alarmTime = convertTime(timeToTake);
+        int alarmTime = convertTime(timeToTake);
 
-        pendingIntent = PendingIntent.getBroadcast(this, 0, myIntent, 0);
+        pendingIntent = PendingIntent.getBroadcast(this,pillId,myIntent,0);
         if (isRepeating) {
-            manager.setRepeating(AlarmManager.RTC_WAKEUP, alarmTime, 86400000, pendingIntent);
+            manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,alarmTime,86400000,pendingIntent);
         } else {
             manager.set(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent);
         }
 
 
+    }
+    public void cancelAlarm(int pillID)
+    {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent myIntent = new Intent(getApplicationContext(),
+                EditMedicationActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,pillID, myIntent,0);
+
+        alarmManager.cancel(pendingIntent);
     }
 
     public int convertTime(int inpTime) {
@@ -277,5 +314,20 @@ public class EditMedicationActivity extends Activity {
         int returnTime = inpTotalMills - currmills;
 
         return returnTime;
+    }
+    public String formatTime(int i) {
+        String times = "";
+        if (i < 60) {
+            if (i < 10) {
+                times += ("00:0" + i + "\n");
+            } else {
+                times += ("00:" + i) + "\n";
+            }
+        } else if (i % 100 < 10) {
+            times += (i - i % 100) / 100 + ":" + "0" + (i % 100) + "\n";
+        } else {
+            times += (i - i % 100) / 100 + ":" + (i % 100) + "\n";
+        }
+        return times;
     }
 }
