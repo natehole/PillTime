@@ -31,36 +31,34 @@ public class MedicineListFragment extends Fragment {
 
         final Vector<String> allMeds = new Vector<>();
 
-        for(Pill p : allPills) {
+        for (Pill p : allPills) {
             Vector<Integer> allTimes = db.getAllTimes(p);
             String times = "";
-            for(Integer i : allTimes){ // i = time
-                if(i < 60) {
-                    if(i < 10) {
-                        times += ("0:0"+i + " , ");
-                    }
-                    else{
+            for (Integer i : allTimes) { // i = time
+                if (i < 60) {
+                    if (i < 10) {
+                        times += ("0:0" + i + " , ");
+                    } else {
                         times += ("0:" + i) + " , ";
                     }
-                }
-                 else if (i%100 < 10) {
-                    times += (i - i % 100) / 100 + ":" + "0" + (i%100) + " , ";
-                }
-                else{
-                    times += (i - i % 100) / 100 + ":" + (i%100) +" , ";
+                } else if (i % 100 < 10) {
+                    times += (i - i % 100) / 100 + ":" + "0" + (i % 100) + " , ";
+                } else {
+                    times += (i - i % 100) / 100 + ":" + (i % 100) + " , ";
                 }
             }
-            times = times.substring(0, times.length()-2) + "\n";
+            times = times.substring(0, times.length() - 2) + "\n";
 
             String active;
 
-            if (p.getActive() == 1){
+            if (p.getActive() == 1) {
                 active = "Active";
-            } else{
+            } else {
                 active = "Not Active";
             }
             allMeds.add(p.getName() + '\n' +
                     p.getDosage() + '\n' +
+                    p.getPillCount() + '\n' +
                     active + '\n' +
                     times +
                     p.getNotes());
@@ -71,9 +69,9 @@ public class MedicineListFragment extends Fragment {
 
         final Intent editIntent = new Intent(getActivity(), EditMedicationActivity.class);
 
-        medicines.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        medicines.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id){
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Edit/Delete record")
                         .setMessage("Press edit to edit pill, Delete to delete this pill")

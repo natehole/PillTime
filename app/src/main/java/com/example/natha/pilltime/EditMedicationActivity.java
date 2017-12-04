@@ -45,6 +45,7 @@ public class EditMedicationActivity extends Activity {
     ListView lvTimes;
 
     private TimePicker time_picker;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,25 +56,25 @@ public class EditMedicationActivity extends Activity {
 
         try {
             intentExtraPill = getIntent().getStringExtra("pill");
-            if (!intentExtraPill.isEmpty()){
+            if (!intentExtraPill.isEmpty()) {
                 String[] extraPillInfo = intentExtraPill.split("\n");
                 dbHelper db = new dbHelper(this);
                 currentPill = db.getPillByName(extraPillInfo[0]);
                 Vector<Integer> currentPillTimes = db.getAllTimes(currentPill);
                 db.close();
-                for (Integer time : currentPillTimes){
+                for (Integer time : currentPillTimes) {
                     times.add(time.toString());
                 }
-            }
-            else {
+            } else {
                 currentPill = new Pill();
             }
-        }catch(Exception e){}
+        } catch (Exception e) {
+        }
 
         poplateData();
     }
 
-    public void Initialize(){
+    public void Initialize() {
         etName = (EditText) findViewById(R.id.nameET);
         cbActive = (CheckBox) findViewById(R.id.activeCB);
         etPillCount = (EditText) findViewById(R.id.pillCountET);
@@ -83,22 +84,18 @@ public class EditMedicationActivity extends Activity {
 
     }
 
-    public void insertToDb(View view){
-        if(etName.length() == 0 || etPillCount.length() == 0 || etDosage.length() == 0)
-        {
+    public void insertToDb(View view) {
+        if (etName.length() == 0 || etPillCount.length() == 0 || etDosage.length() == 0) {
             String errmsg = "You did not input enough data";
             Toast toast = new Toast(getApplicationContext());
             toast.makeText(getApplicationContext(), errmsg, Toast.LENGTH_LONG).show();
-        }
-        else{
+        } else {
             dbHelper db = new dbHelper(this);
             String name = etName.getText().toString();
             int active = 0;
-            if(cbActive.isChecked()){
+            if (cbActive.isChecked()) {
                 active = 1;
-            }
-            else
-            {
+            } else {
                 active = 0;
             }
             Pill pill = new Pill(
@@ -110,16 +107,14 @@ public class EditMedicationActivity extends Activity {
                     etNotes.getText().toString()
             );
             currentPill.getName();
-            if (timeInput){
+            if (timeInput) {
                 pill.setTimeTake(currentPillTime, 0);
             }
 
-            if(!db.checkDB(name)){
-                if (currentPill.getName() == null)
-                {
+            if (!db.checkDB(name)) {
+                if (currentPill.getName() == null) {
                     db.addPill(pill);
-                }
-                else{
+                } else {
                     pill.setId(currentPill.getId());
                     db.updatePill(pill);
                 }
@@ -128,10 +123,10 @@ public class EditMedicationActivity extends Activity {
                 pill.setId(db.getPillId(pill));
                 db.updatePill(pill);
             }
-            if (timeInput){
-                for (int i: timeVec){
-                        db.addTime(pill, i);
-                        setAlarm(pill.getName(), i, true);
+            if (timeInput) {
+                for (int i : timeVec) {
+                    db.addTime(pill, i);
+                    setAlarm(pill.getName(), i, true);
                 }
             }
             timeInput = false;
@@ -142,7 +137,7 @@ public class EditMedicationActivity extends Activity {
     }
 
 
-    public void addNewTime(View view){
+    public void addNewTime(View view) {
         timeInput = true;
         final Calendar currentTime = Calendar.getInstance();
         int hour = currentTime.get(Calendar.HOUR_OF_DAY);
@@ -151,18 +146,16 @@ public class EditMedicationActivity extends Activity {
         /*AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
         builder.setIcon()*/
 
-        TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener(){
+        TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 currentPillTime = hourOfDay * 100 + minute;
-                if(arrayAdapter.getPosition(String.valueOf(currentPillTime)) == -1)
-                {
+                if (arrayAdapter.getPosition(String.valueOf(currentPillTime)) == -1) {
                     currentPill.setTimeTake(currentPillTime, 0);
                     timeVec.add(currentPillTime);
                     arrayAdapter.add(String.valueOf(currentPillTime));
                     arrayAdapter.notifyDataSetChanged();
-                }
-                else{
+                } else {
                     Toast.makeText(getApplicationContext(), "Time is already here", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -173,23 +166,19 @@ public class EditMedicationActivity extends Activity {
         timePickerDialog.show();
     }
 
-    public void poplateData(){
-        if (!intentExtraPill.isEmpty())
-        {
+    public void poplateData() {
+        if (!intentExtraPill.isEmpty()) {
             etName.setText(currentPill.getName());
             etDosage.setText(currentPill.getDosage());
             etNotes.setText(currentPill.getNotes());
-            if(currentPill.getActive() == 1){
+            if (currentPill.getActive() == 1) {
                 cbActive.setChecked(true);
-            }
-            else{
+            } else {
                 cbActive.setChecked(false);
             }
             etPillCount.setText(currentPill.getPillCount().toString());
             arrayAdapter = new ArrayAdapter<String>(this, R.layout.pill_list_item, R.id.pillItemTV, times);
-        }
-        else
-        {
+        } else {
             etName.setText("");
             etDosage.setText("");
             etNotes.setText("");
@@ -200,9 +189,9 @@ public class EditMedicationActivity extends Activity {
 
         final dbHelper db = new dbHelper(EditMedicationActivity.this);
 
-        lvTimes.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        lvTimes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id){
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 new AlertDialog.Builder(EditMedicationActivity.this)
                         .setTitle("Edit or Delete a Time")
                         .setMessage("Press edit to edit a time, Delete to delete this time")
@@ -227,7 +216,8 @@ public class EditMedicationActivity extends Activity {
         });
         db.close();
     }
-    public void cancel(View view){
+
+    public void cancel(View view) {
         AlertDialog alertDialogBuilder = new AlertDialog.Builder(this)
                 .setTitle("EXIT")
                 .setMessage("Cancel and return to previous page?")
@@ -245,33 +235,28 @@ public class EditMedicationActivity extends Activity {
                 }).show();
     }
 
-    public void setAlarm(String pillName, int timeToTake, boolean isRepeating)
-    {
-        AlarmManager manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+    public void setAlarm(String pillName, int timeToTake, boolean isRepeating) {
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent myIntent;
         PendingIntent pendingIntent;
 
-        myIntent = new Intent(EditMedicationActivity.this,AndroidNotificationReciever.class);
+        myIntent = new Intent(EditMedicationActivity.this, AndroidNotificationReciever.class);
         myIntent.putExtra("meds", pillName);
         myIntent.setAction("meds" + "meds");
 
         long alarmTime = convertTime(timeToTake);
 
-        pendingIntent = PendingIntent.getBroadcast(this,0,myIntent,0);
-        if(isRepeating)
-        {
-            manager.setRepeating(AlarmManager.RTC_WAKEUP,alarmTime,86400000,pendingIntent);
-        }
-        else
-        {
-            manager.set(AlarmManager.RTC_WAKEUP, alarmTime,pendingIntent);
+        pendingIntent = PendingIntent.getBroadcast(this, 0, myIntent, 0);
+        if (isRepeating) {
+            manager.setRepeating(AlarmManager.RTC_WAKEUP, alarmTime, 86400000, pendingIntent);
+        } else {
+            manager.set(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent);
         }
 
 
     }
 
-    public int convertTime(int inpTime)
-    {
+    public int convertTime(int inpTime) {
         final Calendar currentTime = Calendar.getInstance();
         int currhour = currentTime.get(Calendar.HOUR_OF_DAY);
         int currminute = currentTime.get(Calendar.MINUTE);

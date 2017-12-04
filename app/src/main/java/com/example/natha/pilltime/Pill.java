@@ -10,7 +10,7 @@ import java.util.Vector;
  * Created by Jordan on 11/30/2017.
  */
 
-public class Pill extends Activity{
+public class Pill extends Activity {
     private int Id;
     private String name;
     private Integer Active;
@@ -21,7 +21,8 @@ public class Pill extends Activity{
     // Key is Time i.e. 700 is 7am,
     // Value is 0 or 1 for false or true as in the medication to take at that time has been taken or has not been taken
 
-    public Pill() {}
+    public Pill() {
+    }
 
     public Pill(int id, String name, int active, int pillCount, String dosage, String notes) {
         this.Id = id;
@@ -31,16 +32,20 @@ public class Pill extends Activity{
         this.dosage = dosage;
         this.notes = notes;
     }
-    public String getName()
-    {
+
+    public String getName() {
         return name;
     }
-    public void setName(String n) {name = n;}
-    public int getActive()
-    {
-        //1 = true, 0 = false
-        return  this.Active;
+
+    public void setName(String n) {
+        name = n;
     }
+
+    public int getActive() {
+        //1 = true, 0 = false
+        return this.Active;
+    }
+
     public Integer getPillCount() {
         return pillCount;
     }
@@ -61,17 +66,19 @@ public class Pill extends Activity{
         Active = active;
     }
 
-    public Vector<Integer> getAllTimes(){
+    public Vector<Integer> getAllTimes() {
         Vector<Integer> allTimes = new Vector<>();
-        for (int key: timeTaken.keySet()) {
+        for (int key : timeTaken.keySet()) {
             allTimes.add(key);
         }
         return allTimes;
     }
-    public void setTimeTake(int t, int taken){
-        timeTaken.put(t,taken);
+
+    public void setTimeTake(int t, int taken) {
+        timeTaken.put(t, taken);
     }
-    public Map<Integer, Integer> getTimeTaken(){
+
+    public Map<Integer, Integer> getTimeTaken() {
         return timeTaken;
     }
 
@@ -91,14 +98,15 @@ public class Pill extends Activity{
         Id = id;
     }
 
-    public Vector<String> getAllTimesS(){
+    public Vector<String> getAllTimesS() {
         Vector<String> allTimes = new Vector<>();
-        for (Integer key: timeTaken.keySet()) {
+        for (Integer key : timeTaken.keySet()) {
             allTimes.add(key.toString());
         }
         return allTimes;
     }
-    public void setTaken(int k, int i){ //k = key i = value of hash map trying to set
+
+    public void setTaken(int k, int i) { //k = key i = value of hash map trying to set
         timeTaken.put(k, i);
     }
 }

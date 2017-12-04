@@ -126,6 +126,7 @@ public class dbHelper extends SQLiteOpenHelper {
         db.execSQL(deleteStm);
         db.close();
     }
+
     public void updatePill(Pill pill) { //updates pill
         SQLiteDatabase db = this.getWritableDatabase();
         String updateStm = "UPDATE " + medicineTableName + " SET "
@@ -406,6 +407,7 @@ public class dbHelper extends SQLiteOpenHelper {
             return false;
         }
     }
+
     public void updateTaken(Pill pill, int time, int taken) {
         SQLiteDatabase db = this.getWritableDatabase();
         String updateStm = "UPDATE " + reminderTableName + " SET "
@@ -415,7 +417,8 @@ public class dbHelper extends SQLiteOpenHelper {
         db.execSQL(updateStm);
         db.close();
     }
-    public void removePillTimeByName(String pillName, int time){
+
+    public void removePillTimeByName(String pillName, int time) {
         Pill pill = getPillByName(pillName);
         SQLiteDatabase db = this.getWritableDatabase();
         String deleteStm = "DELETE FROM " + reminderTableName + " WHERE "

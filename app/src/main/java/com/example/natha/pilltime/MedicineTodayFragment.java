@@ -12,6 +12,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
@@ -19,13 +20,31 @@ import java.util.Vector;
 
 
 public class MedicineTodayFragment extends Fragment {
-    public MedicineTodayFragment(){}
+    public MedicineTodayFragment() {
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstance) {
+
+        Calendar currentTime = Calendar.getInstance();
+        int currentHour = currentTime.get(Calendar.HOUR);
+        int currentMinute = currentTime.get(Calendar.MINUTE);
+
         final dbHelper db = new dbHelper(getActivity().getApplicationContext());
         //pull active medicines from db
+
         Vector<Pill> activePills = db.getActivePills();
+        if (currentHour == 0 && currentMinute == 0){
+            for (Pill p : activePills) {
+                Iterator it = p.getTimeTaken().entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry pair = (Map.Entry) it.next();
+                    pair.setValue(0);
+                    db.updateTaken(p,Integer.parseInt(pair.getKey().toString()), 0);
+                }
+            }
+        }
+
 
         Vector<String> takenPills = new Vector<String>();
         Vector<String> notTakenPills = new Vector<String>();
@@ -33,146 +52,144 @@ public class MedicineTodayFragment extends Fragment {
         //For each pill that is marked active, search through the times listed to take it and for each time listed
         //Add the pill the taken Pills or not taken pills
         //This list will have duplicates of  pills, one for each time slot
-        for(Pill p : activePills) {
+        for (Pill p : activePills) {
             if (p.getActive() == 1) {
                 Iterator it = p.getTimeTaken().entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry) it.next();
                     if (pair.getValue().equals(1)) {
-                            int i = (int) pair.getKey();
-                            String time = formatTime(i);
-                            String out =  p.getName() + '\n'
-                                    +   p.getDosage() + "\n"
-                                     + time;
-                            takenPills.add(out);
-                        } else {
-                            int i = (int) pair.getKey();
-                            String time = formatTime(i);
-                            String out =  p.getName() + '\n'
-                                     + p.getDosage() + "\n"
-                                     + time;
-                            notTakenPills.add(out);
-                        }
-                        it.remove();
+                        int i = (int) pair.getKey();
+                        String time = formatTime(i);
+                        String out = p.getName() + '\n'
+                                //+ p.getPillCount() + " pills\n"
+                                //+ p.getDosage() + "\n"
+                                + time;
+                        takenPills.add(out);
+                    } else {
+                        int i = (int) pair.getKey();
+                        String time = formatTime(i);
+                        String out = p.getName() + '\n'
+                                //+ p.getPillCount() + " pills\n"
+                                //+ p.getDosage() + "\n"
+                                + time;
+                        notTakenPills.add(out);
                     }
+                    it.remove();
                 }
+            }
         }
-            final ArrayAdapter<String> taken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, takenPills);
-            final ArrayAdapter<String> notTaken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, notTakenPills);
+        final ArrayAdapter<String> taken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, takenPills);
+        final ArrayAdapter<String> notTaken = new ArrayAdapter<String>(getActivity(), R.layout.pill_list_item, R.id.pillItemTV, notTakenPills);
 
-            View todayView = inflater.inflate(R.layout.today_fragment, container, false);
-            ListView medicinesTaken = (ListView) todayView.findViewById(R.id.takenLV);
-            ListView medicinesNotTaken = (ListView) todayView.findViewById(R.id.notTakenLV);
+        View todayView = inflater.inflate(R.layout.today_fragment, container, false);
+        ListView medicinesTaken = (ListView) todayView.findViewById(R.id.takenLV);
+        ListView medicinesNotTaken = (ListView) todayView.findViewById(R.id.notTakenLV);
 
-            medicinesTaken.setAdapter(taken);
-            medicinesNotTaken.setAdapter(notTaken);
+        sortMedication(taken);
+        sortMedication(notTaken);
 
-            medicinesTaken.setOnItemClickListener(new OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                    startAlert(taken.getItem(position));
-                    final String pillS = taken.getItem(position);
-                    final String[] extraPillInfo = pillS.split("\n");
-                    final String name = extraPillInfo[0];
-                    String message = "Notes: " + db.getPillNotes(name);
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle("Did you take your medication?")
-                            .setMessage("message")
-                            .setPositiveButton("undo taken?", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    String time = extraPillInfo[2];
-                                    int timeI = unFormatTime(time); //integer to hold the time unformatted
-                                    Pill p = db.getPillByName(name);
-                                    p.setTimeTake(timeI, 0);
-                                    p.setPillCount(p.getPillCount() + 1);
-                                    db.updateTaken(p, timeI, 0);
-                                    db.updatePill(p);
-                                    taken.remove(pillS);
-                                    notTaken.add(pillS);
-                                    sortMedication(notTaken);
-                                    sortMedication(taken);
-                                    notTaken.notifyDataSetChanged();
-                                    taken.notifyDataSetChanged();
-                                }
-                            })
-                            .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                }
-                            })
-                            .setNeutralButton("Close", null).show();
-                }
-            });
-            medicinesNotTaken.setOnItemClickListener(new OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                    startAlert(notTaken.getItem(position));
-                    final String pillS = notTaken.getItem(position);
-                    final String[] extraPillInfo = pillS.split("\n");
-                    final String name = extraPillInfo[0];
-                    String message = "Notes: " + db.getPillNotes(name);
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle("Did you take your medication?")
-                            .setMessage(message)
-                            .setPositiveButton("Taken?", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    String pillS = notTaken.getItem(position);
-                                    String time = extraPillInfo[2];
-                                    int timeI = unFormatTime(time); //integer to hold the time unformatted
-                                    Pill p = db.getPillByName(name);
-                                    p.setTimeTake(timeI, 1);
-                                    p.setPillCount(p.getPillCount() - 1);
-                                    db.updatePill(p);
-                                    db.updateTaken(p, timeI, 1);
-                                    db.testTimes();
-                                    notTaken.remove(pillS);
-                                    taken.add(pillS);
+        medicinesTaken.setAdapter(taken);
+        medicinesNotTaken.setAdapter(notTaken);
 
-                                    sortMedication(taken);
-                                    sortMedication(notTaken);
+        medicinesTaken.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                startAlert(taken.getItem(position));
+                final String pillS = taken.getItem(position);
+                final String[] extraPillInfo = pillS.split("\n");
+                final String name = extraPillInfo[0];
+                Pill p = db.getPillByName(name);
+                String message = name + "\nNotes: " + p.getNotes() + "\n" + p.getPillCount() + " pills remaining" ;
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Did you take your medication?")
+                        .setMessage(message)
+                        .setPositiveButton("Undo Take Pill", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String time = extraPillInfo[1];
+                                int timeI = unFormatTime(time); //integer to hold the time unformatted
+                                Pill p = db.getPillByName(name);
+                                p.setTimeTake(timeI, 0);
+                                p.setPillCount(p.getPillCount() + 1);
+                                db.updateTaken(p, timeI, 0);
+                                db.updatePill(p);
+                                taken.remove(pillS);
+                                notTaken.add(pillS);
+                                sortMedication(notTaken);
+                                sortMedication(taken);
+                                notTaken.notifyDataSetChanged();
+                                taken.notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton("Close", null).show();
+            }
+        });
+        medicinesNotTaken.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                startAlert(notTaken.getItem(position));
+                final String pillS = notTaken.getItem(position);
+                final String[] extraPillInfo = pillS.split("\n");
+                final String name = extraPillInfo[0];
+                Pill p = db.getPillByName(name);
+                String message =  name + "\nNotes: " + p.getNotes() + "\n" + p.getPillCount() + " pills remaining" ;
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Did you take your medication?")
+                        .setMessage(message)
+                        .setPositiveButton("Take Pill", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String pillS = notTaken.getItem(position);
+                                String time = extraPillInfo[1];
+                                int timeI = unFormatTime(time); //integer to hold the time unformatted
+                                Pill p = db.getPillByName(name);
+                                p.setTimeTake(timeI, 1);
+                                p.setPillCount(p.getPillCount() - 1);
+                                db.updatePill(p);
+                                db.updateTaken(p, timeI, 1);
+                                //db.testTimes();
 
-                                    notTaken.notifyDataSetChanged();
-                                    taken.notifyDataSetChanged();
-                                }
-                            })
-                            .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                }
-                            })
-                            .setNeutralButton("Close", null).show();
-                }
-            });
-            db.close();
-            return todayView;
+                                notTaken.remove(pillS);
+                                taken.add(pillS);
+
+                                sortMedication(taken);
+                                sortMedication(notTaken);
+
+                                notTaken.notifyDataSetChanged();
+                                taken.notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton("Close", null).show();
+            }
+        });
+        db.close();
+        return todayView;
 
     }
 
-    public void startAlert(String data){
+    public void startAlert(String data) {
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
         String dataArray[] = data.split("\n");
         alertDialog.setTitle(dataArray[0]);
     }
-    public String formatTime(int i){
+
+    public String formatTime(int i) {
         String times = "";
-        if(i < 60) {
-            if(i < 10) {
-                times += ("00:0"+i + "\n");
-            }
-            else{
+        if (i < 60) {
+            if (i < 10) {
+                times += ("00:0" + i + "\n");
+            } else {
                 times += ("00:" + i) + "\n";
             }
+        } else if (i % 100 < 10) {
+            times += (i - i % 100) / 100 + ":" + "0" + (i % 100) + "\n";
+        } else {
+            times += (i - i % 100) / 100 + ":" + (i % 100) + "\n";
         }
-        else if (i%100 < 10) {
-            times += (i - i % 100) / 100 + ":" + "0" + (i%100) + "\n";
-        }
-        else{
-            times += (i - i % 100) / 100 + ":" + (i%100) +"\n";}
         return times;
     }
-    public int unFormatTime(String i){
+
+    public int unFormatTime(String i) {
         String[] rawString = i.split(":");
         int hour = Integer.parseInt(rawString[0]) * 100;
         int minute = Integer.parseInt(rawString[1]);
@@ -180,20 +197,19 @@ public class MedicineTodayFragment extends Fragment {
         return rawTime;
     }
 
-    public void sortMedication(ArrayAdapter<String> arrayAdapter){
+    public void sortMedication(ArrayAdapter<String> arrayAdapter) {
         arrayAdapter.sort(new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
-                String []arrayO1 = o1.split("\n");
-                String []arrayO2 = o2.split("\n");
+                String[] arrayO1 = o1.split("\n");
+                String[] arrayO2 = o2.split("\n");
 
-                Integer rawO1Time = unFormatTime(arrayO1[2].substring(5));
-                Integer rawO2Time = unFormatTime(arrayO2[2].substring(5));
+                Integer rawO1Time = unFormatTime(arrayO1[1]);
+                Integer rawO2Time = unFormatTime(arrayO2[1]);
 
                 if (rawO1Time < rawO2Time) {
                     return -1;
-                }
-                else{
+                } else {
                     return 1;
                 }
 
